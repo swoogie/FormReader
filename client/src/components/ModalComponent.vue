@@ -24,7 +24,7 @@
          class="backdrop-blur-sm fixed inset-0 z-50 overflow-y-auto flex justify-center items-center">
         <div @click.self="closeModal"
              class="fixed inset-0 bg-gray-700 bg-opacity-50"></div>
-        <div class="flex flex-col backdrop-blur-sm bg-white/70 dark:bg-zinc-800/70 p-1 rounded-md shadow-md">
+        <div class="flex flex-col backdrop-blur-sm bg-white/70 dark:bg-zinc-800/70 p-2 rounded-md shadow-md">
             <div class="pb-2 relative">
                 <button @click="closeModal"
                         class="absolute px-1">

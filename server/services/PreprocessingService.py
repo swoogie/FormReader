@@ -1,14 +1,13 @@
+import os
 import cv2
 import pytesseract
 import numpy as np
-import matplotlib.pyplot as plt
+from flask import current_app
 from pytesseract import Output
 
-class PreprocessingService:
-    def read(self, img_file):
-        in_memory_file = io.BytesIO(image_file.read())
-        img_array = np.array(bytearray(in_memory_file.read()), dtype=np.uint8)
-        return cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-    def preprocess(self, img: str):
-        return img
+class PreprocessingService:
+    def preprocess_for_checkboxes(self, resized_image: str):
+        gray = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        edges = cv2.Canny(blurred, 50, 100)

@@ -1,6 +1,7 @@
 .vscode
 config.yaml
 flaskConfig.json
+**/uploads/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

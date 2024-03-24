@@ -81,7 +81,7 @@
                 {{ fileName }}
             </template>
             <img v-if="imageStore.uploadedImage"
-                 class="rounded-sm"
+                 class="max-h-[36rem] object-contain rounded-sm"
                  :src="imageStore.uploadedImage" />
             <template #footer>
                 <button class="transition-colors bg-green-600 hover:bg-green-900 rounded-md mx-auto mt-2 size-10">

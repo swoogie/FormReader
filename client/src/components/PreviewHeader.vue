@@ -1,13 +1,15 @@
 <script setup
         lang="ts">
+        import UploadButton from './UploadButton.vue';
+
         defineProps<{
             beingScanned: boolean;
         }>();
 </script>
 
 <template>
-    <div class="grid grid-cols-3 opacity-95 columns-sm items-end mt-8">
-        <div class="rounded h-fit w-20 px-3 m-4">
+    <div class="grid grid-cols-3 opacity-95 columns-sm mt-8 w-full">
+        <div class="h-fit w-20 px-3 m-4">
             <p class="text-md">Image Preview</p>
         </div>
         <button :disabled="beingScanned"
@@ -20,5 +22,6 @@
             <i v-if="beingScanned"
                class="bi bi-hourglass-split"></i>
         </button>
+        <UploadButton class="size-16 justify-self-end m-2"/>
     </div>
 </template>

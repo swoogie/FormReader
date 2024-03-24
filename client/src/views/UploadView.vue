@@ -42,6 +42,8 @@
                 await postImage(file);
             } catch (e: any) {
                 error.value = e.message;
+                beingScanned.value = false;
+                return;
             }
             showModal.value = true;
             beingScanned.value = false;
@@ -64,8 +66,8 @@
                 <UploadLoader />
             </div>
             <div v-if="error"
-                 class="absolute flex justify-center inset-0 bg-zinc-600/50 rounded-lg backdrop-blur-[1px]">
-                <i class="bi bi-exclamation-triangle"></i>
+                 class="absolute flex flex-col justify-center items-center inset-0 bg-zinc-600/50 rounded-lg backdrop-blur-[1px]">
+                <i class="bi bi-exclamation-triangle text-3xl"></i>
                 <p>Error: {{ error }}</p>
             </div>
             <img v-if="imageStore.uploadedImage"

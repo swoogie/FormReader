@@ -1,6 +1,6 @@
 <script setup
         lang="ts">
-        import type WelcomeItem from '@/components/WelcomeItem.vue';
+        import WelcomeItem from '@/components/WelcomeItem.vue';
 </script>
 
 <template>

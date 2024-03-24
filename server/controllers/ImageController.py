@@ -12,13 +12,11 @@ class ImageController:
 
     @inject
     def handle(self, preprocessor: PreprocessingService = Provide[Container.preprocessor]):
-        if request.method == 'OPTIONS':
-            return self._build_cors_preflight_response()
         if request.method == 'POST':
             if 'file' not in request.files:
                 logging.warning('testing warning log')
                 flash('No file part')
-                return self._corsify_actual_response(redirect(request.url))
+                return redirect(request.url)
             file = request.files['file']
             if file.filename == '':
                 flash('No selected file')
@@ -32,20 +30,8 @@ class ImageController:
                 )
                 file.save(save_path)
                 # return redirect(url_for('download_file', name=filename))
-            return self._corsify_actual_response(jsonify({'message': preprocessor.preprocess("check uploads")}))
+            return jsonify({'message': preprocessor.preprocess("check uploads")})
 
     def allowed_file(self, filename):
         return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in ImageController.ALLOWED_EXTENSIONS
-
-    def _build_cors_preflight_response(self):
-        response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "*")
-        response.headers.add('Access-Control-Allow-Methods', "*")
-        return response
-
-    def _corsify_actual_response(self, response):
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Credentials", "*")
-        return response

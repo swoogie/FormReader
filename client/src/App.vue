@@ -34,7 +34,7 @@
 </script>
 
 <template>
-    <header class="flex justify-center mx-auto max-w-md leading-6 border-b border-gray-500 p-2">
+    <header class="flex justify-center mx-auto max-w-md leading-6 border-b border-gray-500 p-2 mb-8">
         <div>
             <HelloWorld :pageTitle="pageTitle"
                         :msg="msg" />

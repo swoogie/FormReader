@@ -3,7 +3,7 @@ import logging
 import os
 from flask import request, flash, redirect, url_for, jsonify, make_response, current_app
 from werkzeug.utils import secure_filename
-from ..services import PreprocessingService
+from ..services import PreprocessingService, ImageReadingService, CheckboxDetectionService
 from ..container import Container
 
 
@@ -11,14 +11,12 @@ class ImageController:
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
     @inject
-    def handle(self, preprocessor: PreprocessingService = Provide[Container.preprocessor]):
-        if request.method == 'OPTIONS':
-            return self._build_cors_preflight_response()
+    def handle(self):
         if request.method == 'POST':
             if 'file' not in request.files:
                 logging.warning('testing warning log')
                 flash('No file part')
-                return self._corsify_actual_response(redirect(request.url))
+                return redirect(request.url)
             file = request.files['file']
             if file.filename == '':
                 flash('No selected file')
@@ -26,26 +24,32 @@ class ImageController:
             if file and self.allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 save_path = os.path.join(
-                    current_app.root_path, 
+                    current_app.root_path,
                     current_app.config['UPLOAD_FOLDER'],
                     filename
                 )
-                file.save(save_path)
+                return self.process_image()
+                # file.save(save_path)
                 # return redirect(url_for('download_file', name=filename))
-            return self._corsify_actual_response(jsonify({'message': preprocessor.preprocess("check uploads")}))
+            # return jsonify({'message': 'success'})
 
+    @inject
+    def process_image(
+        self,
+        image_reader: ImageReadingService = Provide[Container.image_reader],
+        preprocessor: PreprocessingService = Provide[Container.preprocessor],
+        checkbox_detector: CheckboxDetectionService = Provide[Container.checkbox_detector]
+    ):
+        resized_image = image_reader.readImage(
+            current_app,
+            request.files['file']
+        )
+        preprocessed_image = preprocessor.preprocess_for_checkboxes(resized_image)
+        checkbox_coordinates = checkbox_detector.detect(preprocessed_image, resized_image)
+        return jsonify({'checkbox_coordinates': checkbox_coordinates.tolist()})
+
+        
     def allowed_file(self, filename):
         return '.' in filename and \
-            filename.rsplit('.', 1)[1].lower() in ImageController.ALLOWED_EXTENSIONS
-
-    def _build_cors_preflight_response(self):
-        response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "*")
-        response.headers.add('Access-Control-Allow-Methods', "*")
-        return response
-
-    def _corsify_actual_response(self, response):
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Credentials", "*")
-        return response
+            filename.rsplit('.', 1)[1].lower(
+            ) in ImageController.ALLOWED_EXTENSIONS

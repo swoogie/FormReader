@@ -17,7 +17,7 @@
 </script>
 
 <template>
-    <div class="flex text-2xl text-white justify-center w-full">
+    <div class="flex text-2xl justify-center w-full">
         <i class="bi bi-dot w-5"
            :class="{ 'animate-bounce': start1 }"></i>
         <i class="bi bi-dot w-5"

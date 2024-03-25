@@ -1,1 +1,3 @@
 from .PreprocessingService import PreprocessingService
+from .ImageReadingService import ImageReadingService
+from .CheckboxDetectionService import CheckboxDetectionService

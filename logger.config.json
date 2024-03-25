@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "detailed": {
+      "format": "%(asctime)s [%(threadName)s] [%(levelname)s] %(message)s"
+    }
+  },
+  "handlers": {
+    "file": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "formatter": "detailed",
+      "filename": "logs/app.log",
+      "maxBytes": 10240,
+      "backupCount": 2
+    },
+    "console": {
+      "class": "logging.StreamHandler",
+      "formatter": "detailed"
+    }
+  },
+  "root": {
+    "level": "DEBUG",
+    "handlers": [
+      "file",
+      "console"
+    ]
+  }
+}

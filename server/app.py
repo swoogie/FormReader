@@ -1,37 +1,17 @@
 from flask import Flask, render_template
 import json
+import os
 from .controllers import ImageController
 from .controllers import VueController
 from .container import Container
 from .middlewares.LoggingMiddleware import LoggingMiddleware
-from logging.config import dictConfig
+import logging.config
 
 
-def create_app() -> Flask:
-    dictConfig({
-        'version': 1,
-        'formatters': {
-            'default': {
-                'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-            }
-        },
-        'handlers': {
-            'wsgi': {
-                'class': 'logging.StreamHandler',
-                'stream': 'ext://flask.logging.wsgi_errors_stream',
-                'formatter': 'default'
-            },
-            'file': {
-                'class': 'logging.FileHandler',
-                'filename': 'uploads/app.log',
-                'formatter': 'default' 
-            }
-        },
-        'root': {
-            'level': 'INFO',
-            'handlers': ['wsgi', 'file']
-        }
-    })
+def create_app() -> Flask: 
+    with open('logger.config.json', 'r') as f:
+        config = json.load(f)
+        logging.config.dictConfig(config)
 
     container = Container()
 
@@ -43,7 +23,7 @@ def create_app() -> Flask:
     )
     # print(app.root_path)
     # app.wsgi_app = LoggingMiddleware(app.wsgi_app)
-    app.config.from_file("../flaskConfig.json", load=json.load)
+    app.config.from_file("../flask.config.json", load=json.load)
     app.container = container
     app.add_url_rule("/", "vue", VueController(app).vue,
                      methods=["GET", "OPTIONS"])

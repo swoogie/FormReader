@@ -13,7 +13,7 @@
            @dragleave.prevent="isDraggedOver = false;"
            class="flex flex-col items-center justify-center px-10 w-[70svw] max-w-[700px] max-h-[500px] h-[50svh] border-dashed border-gray-500 border-2 rounded-md"
            :class="{ 'border-green-500': isDraggedOver }">
-        <UploadButton />
+        <UploadButton class="size-32"/>
         <p class="mt-7">Drag and drop your .png or .jp(e)g image here or click to select.</p>
     </label>
 </template>

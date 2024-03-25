@@ -28,24 +28,25 @@ class ImageController:
                     current_app.config['UPLOAD_FOLDER'],
                     filename
                 )
-                self.process_image()
+                return self.process_image()
                 # file.save(save_path)
                 # return redirect(url_for('download_file', name=filename))
-            return jsonify({'message': 'success'})
+            # return jsonify({'message': 'success'})
 
     @inject
     def process_image(
         self,
         image_reader: ImageReadingService = Provide[Container.image_reader],
         preprocessor: PreprocessingService = Provide[Container.preprocessor],
-        checkbox_detector: CheckboxDetectionService = Provide[Container.checkbox_detector]        
+        checkbox_detector: CheckboxDetectionService = Provide[Container.checkbox_detector]
     ):
-        resized_image, unprocessed_resized_image = image_reader.readImage(
+        resized_image = image_reader.readImage(
             current_app,
             request.files['file']
         )
         preprocessed_image = preprocessor.preprocess_for_checkboxes(resized_image)
-        checkbox_detector.detect_checkboxes(resized_image)
+        checkbox_coordinates = checkbox_detector.detect(preprocessed_image, resized_image)
+        return jsonify({'checkbox_coordinates': checkbox_coordinates.tolist()})
 
         
     def allowed_file(self, filename):

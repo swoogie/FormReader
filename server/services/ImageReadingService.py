@@ -22,6 +22,5 @@ class ImageReadingService:
             new_width = int(width * (max_size / height))
 
         resized_image = cv2.resize(image, (new_width, new_height))
-        unprocessed_resized_image = resized_image.copy()
 
-        return resized_image, unprocessed_resized_image
+        return resized_image

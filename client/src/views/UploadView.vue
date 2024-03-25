@@ -40,9 +40,13 @@
             beingScanned.value = true;
             try {
                 await postImage(file);
+                beingScanned.value = false;
+                error.value = '';
+                console.log('error removed' + error.value);
             } catch (e: any) {
                 error.value = e.message;
                 beingScanned.value = false;
+                console.log('error added' + error.value);
                 return;
             }
             showModal.value = true;
@@ -65,7 +69,7 @@
                  class="absolute flex items-center inset-0 bg-zinc-600/50 rounded-lg backdrop-blur-[1px]">
                 <UploadLoader />
             </div>
-            <div v-if="error"
+            <div v-if="error && !beingScanned"
                  class="absolute flex flex-col justify-center items-center inset-0 bg-zinc-600/50 rounded-lg backdrop-blur-[1px]">
                 <i class="bi bi-exclamation-triangle text-3xl"></i>
                 <p>Error: {{ error }}</p>

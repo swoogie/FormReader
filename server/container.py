@@ -1,10 +1,10 @@
 from dependency_injector import containers, providers
-from .services import PreprocessingService, ImageReadingService, CheckboxDetectionService
+from services import PreprocessingService, ImageReadingService, CheckboxDetectionService
 
 class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         packages=[
-            ".controllers"
+            "controllers"
         ]
     )
     image_reader = providers.Factory(ImageReadingService)

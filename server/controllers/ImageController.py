@@ -3,8 +3,8 @@ import logging
 import os
 from flask import request, flash, redirect, url_for, jsonify, make_response, current_app
 from werkzeug.utils import secure_filename
-from ..services import PreprocessingService, ImageReadingService, CheckboxDetectionService
-from ..container import Container
+from services import PreprocessingService, ImageReadingService, CheckboxDetectionService
+from container import Container
 
 
 class ImageController:

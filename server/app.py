@@ -1,17 +1,14 @@
 from flask import Flask, render_template
 import json
 import os
-from .controllers import ImageController
-from .controllers import VueController
-from .container import Container
-from .middlewares.LoggingMiddleware import LoggingMiddleware
+from controllers import ImageController, VueController
+from container import Container
+from logger import getLoggerConfig
 import logging.config
 
 
 def create_app() -> Flask: 
-    with open('logger.config.json', 'r') as f:
-        config = json.load(f)
-        logging.config.dictConfig(config)
+    logging.config.dictConfig(getLoggerConfig())
 
     container = Container()
 
@@ -21,8 +18,6 @@ def create_app() -> Flask:
         static_folder="../client/dist",
         static_url_path=""
     )
-    # print(app.root_path)
-    # app.wsgi_app = LoggingMiddleware(app.wsgi_app)
     app.config.from_file("../flask.config.json", load=json.load)
     app.container = container
     app.add_url_rule("/", "vue", VueController(app).vue,
@@ -33,3 +28,7 @@ def create_app() -> Flask:
                      ImageController().handle, methods=["GET", "POST", "OPTIONS"])
 
     return app
+
+if __name__ == "__main__":
+    app = create_app()
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

@@ -1,6 +1,7 @@
 from werkzeug.wrappers import Request, Response
 import json, time
 
+# TODO: see if still needed
 
 class LoggingMiddleware:
 

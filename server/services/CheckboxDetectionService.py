@@ -1,7 +1,6 @@
 import cv2
 import pytesseract
 import numpy as np
-import matplotlib.pyplot as plt
 import os
 from flask import current_app
 from pytesseract import Output

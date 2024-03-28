@@ -13,12 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.1.1
 
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@main
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
+          node-version: '20'
 
       - name: Install dependencies
         run: npm i
@@ -26,19 +24,25 @@ jobs:
       - name: Build assets for production
         run: npm run build
 
-      - name: Cleanup
-        run: rm -rf node_modules && rm -rf ./client/src
-
       - name: Build Docker image
         run: docker build -t europe-central2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/form-reader-webapp .
 
-      - name: Push Docker image to GCP Container Registry
-        run:  docker push europe-central2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/form-reader-webapp 
+      - name: Cleanup
+        run: rm -rf node_modules && rm -rf ./client/src
 
-      - name: Deploy to GCP (Example using Cloud Run)
-        run: |-
-            gcloud run deploy myapp \
-            --image europe-central2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/form-reader-webapp \
-            --region us-central2 \
-            --allow-unauthenticated
+      - name: Authenticate to Google Cloud
+        id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+  
+      - name: Push Docker image to GCP Artifact Registry
+        run:  docker push europe-central2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/form-reader-webapp
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: form-reader-webapp
+          image: europe-central2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/form-reader-webapp
+          region: europe-central2
 

@@ -10,7 +10,7 @@ A webapp that detects input fields from a scanned paper form
 
 1. [Python 3.11.8](https://www.python.org/downloads/release/python-3118/)
 2. [Tesseract](https://tesseract-ocr.github.io/)
-3. (Optional)Podman or Docker
+3. (Optional) Podman or Docker
 
 ## Project Setup for Local Development
 
@@ -27,7 +27,7 @@ A webapp that detects input fields from a scanned paper form
    2) `(podman/docker) build -t <image_name> .`
    3) `(podman/docker) run -p <localhost_port>:8080 <image_name/image_hash>`
 
-## Node scripts for [Vite](https://vitejs.dev/)
+## Node Scripts for [Vite](https://vitejs.dev/)
 
 Below you will find different node scripts you can use to interact with Vite
 

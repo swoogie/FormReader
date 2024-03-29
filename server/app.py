@@ -1,5 +1,4 @@
-from flask import Flask, render_template
-import json
+from flask import Flask
 import os
 from controllers import ImageController, VueController
 from container import Container

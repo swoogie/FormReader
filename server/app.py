@@ -18,7 +18,7 @@ def create_app() -> Flask:
         static_folder="../client/dist",
         static_url_path=""
     )
-    app.config.from_file("../flask.config.json", load=json.load)
+    app.config.from_prefixed_env()
     app.container = container
     app.add_url_rule("/", "vue", VueController(app).vue,
                      methods=["GET", "OPTIONS"])

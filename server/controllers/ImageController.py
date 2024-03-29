@@ -22,12 +22,12 @@ class ImageController:
                 flash('No selected file')
                 return redirect(request.url)
             if file and self.allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                save_path = os.path.join(
-                    current_app.root_path,
-                    current_app.config['UPLOAD_FOLDER'],
-                    filename
-                )
+                # filename = secure_filename(file.filename)
+                # save_path = os.path.join(
+                #     current_app.root_path,
+                #     current_app.config['UPLOAD_FOLDER'],
+                #     filename
+                # )
                 return self.process_image()
                 # file.save(save_path)
                 # return redirect(url_for('download_file', name=filename))
@@ -40,13 +40,13 @@ class ImageController:
         preprocessor: PreprocessingService = Provide[Container.preprocessor],
         checkbox_detector: CheckboxDetectionService = Provide[Container.checkbox_detector]
     ):
-        resized_image = image_reader.readImage(
+        resized_image, ratio = image_reader.readImage(
             current_app,
             request.files['file']
         )
         preprocessed_image = preprocessor.preprocess_for_checkboxes(resized_image)
-        checkbox_coordinates = checkbox_detector.detect(preprocessed_image, resized_image)
-        return jsonify({'checkbox_coordinates': checkbox_coordinates.tolist()})
+        checkbox_coordinates = checkbox_detector.detect(preprocessed_image, resized_image, ratio)
+        return jsonify({'checkbox_coordinates': checkbox_coordinates})
 
         
     def allowed_file(self, filename):

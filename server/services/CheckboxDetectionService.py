@@ -7,7 +7,7 @@ from pytesseract import Output
 
 
 class CheckboxDetectionService:
-    def detect(self, preprocessed_img, original_img):
+    def detect(self, preprocessed_img, original_img, ratio):
         rectangles = []
         contours, hierarchy = cv2.findContours(
             preprocessed_img.copy(),
@@ -31,13 +31,15 @@ class CheckboxDetectionService:
         grouped_rectangles, weights = cv2.groupRectangles(
             rectangles, groupThreshold=1, eps=0.03)
 
+        response_coords = [];
         for rect in grouped_rectangles:
-            x1, y1, x2, y2 = rect
+            x1, y1, x2, y2 = map(lambda coord: int(coord / ratio), rect)
+            response_coords.append([x1, y1, x2, y2])
             cv2.rectangle(original_img, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
         try:
             cv2.imwrite('server/uploads/image.png', original_img)
-            return grouped_rectangles
+            return response_coords
         except Exception as e:
             print(e)
 

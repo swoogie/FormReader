@@ -6,30 +6,43 @@
         import DragAndDrop from "@/components/DragAndDrop.vue";
         import { useImageStore } from "@/stores/imageStore";
         import { postImage } from "@/api/ImageApi";
-        import { ref } from "vue";
+        import { ref, nextTick } from "vue";
 
 
         let file: File;
+        let resolution: {width: number, height: number};
         const imageStore = useImageStore();
         const fileName = ref<string>('');
         const beingScanned = ref<boolean>(false);
         const showModal = ref<boolean>(false);
         const error = ref<string>('');
+        const checkboxCoords = ref<number[][]>();
+        const scannedImage = ref<HTMLImageElement>();
+        const domToActualRatio = ref<number>();
 
         async function handleUpload($event: Event) {
             if ($event instanceof DragEvent && $event.dataTransfer?.files[0]) {
                 file = $event.dataTransfer?.files[0] as File;
+                console.log(file);
             } else {
                 const inputTarget = $event.target as HTMLInputElement;
                 if (!inputTarget.files?.[0]) return;
                 file = inputTarget.files[0];
             }
             const fileReader = new FileReader();
-            fileReader.onload = (e) => {
-                imageStore.addImage(e.target?.result as string)
+            fileReader.onload = async (e) => {
+                const imageDataUrl = e.target?.result as string;
+                imageStore.addImage(imageDataUrl);
+                resolution = await new Promise((resolve) => {
+                    const image = new Image();
+                    image.src = imageDataUrl;
+                    image.onload = () => {
+                        resolve({width: image.naturalWidth, height: image.naturalHeight});
+                    };
+                });
             };
-            await new Promise((resolve) => {
-                fileReader.onloadend = () => resolve(fileReader.result);
+            await new Promise<void>((resolve) => {
+                fileReader.onloadend = () => resolve();
                 fileReader.readAsDataURL(file);
             });
             fileName.value = file['name'];
@@ -39,17 +52,23 @@
             showModal.value = false;
             beingScanned.value = true;
             try {
-                await postImage(file);
+                checkboxCoords.value = await postImage(file);
                 beingScanned.value = false;
                 error.value = '';
-                console.log('error removed' + error.value);
             } catch (e: any) {
                 error.value = e.message;
                 beingScanned.value = false;
-                console.log('error added' + error.value);
                 return;
             }
             showModal.value = true;
+            await nextTick();
+            if (scannedImage.value) {
+                const { width } = scannedImage.value.getBoundingClientRect();
+                domToActualRatio.value = width / resolution.width;
+                checkboxCoords.value = checkboxCoords.value?.map((coords) => {
+                    return coords.map((coords) => coords * (domToActualRatio.value ?? 0));
+                })
+            } 
             beingScanned.value = false;
         }
 
@@ -86,9 +105,17 @@
             <template #header>
                 {{ fileName }}
             </template>
-            <img v-if="imageStore.uploadedImage"
-                 class="max-h-[36rem] object-contain rounded-sm"
-                 :src="imageStore.uploadedImage" />
+            <div class="relative">
+                <input v-for="(coords, index) in checkboxCoords"
+                       :key="index"
+                       type="checkbox"
+                       class="absolute"
+                       :style="`top: ${coords[1]}px; left: ${coords[0]}px`">
+                <img v-if="imageStore.uploadedImage"
+                     class="max-h-[36rem] object-contain rounded-sm"
+                     :src="imageStore.uploadedImage"
+                     ref="scannedImage" />
+            </div>
             <template #footer>
                 <button class="transition-colors bg-green-600 hover:bg-green-900 rounded-md mx-auto mt-2 size-10">
                     <i class="bi bi-download text-2xl"></i>

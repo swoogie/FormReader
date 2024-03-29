@@ -2,20 +2,34 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useImageStore = defineStore('imageStore', () => {
-  const uploadedImage = ref();
-  const processedImage = ref();
-  function addImage(image: any) {
-    uploadedImage.value = image;
-  }
-  function removeImage() {
-    uploadedImage.value = null;
-  }
-  function addProcessedImage(image: any) {
-    uploadedImage.value = image;
-  }
-  function removeProcessedImage() {
-    uploadedImage.value = null;
-  }
+    const uploadedImage = ref();
+    const processedImage = ref();
 
-  return { uploadedImage, processedImage, addImage, removeImage, addProcessedImage, removeProcessedImage }
+    const loadState = () => {
+        uploadedImage.value = JSON.parse(localStorage.getItem("processedImage") || '""');
+        processedImage.value = JSON.parse(localStorage.getItem("processedImage") || '""');
+        console.log(uploadedImage.value);
+    };
+    loadState();
+
+    function addImage(image: any) {
+        uploadedImage.value = image;
+        localStorage.setItem('uploadedImage', JSON.stringify(image));
+        console.log(localStorage.getItem('uploadedImage'));
+    }
+    function removeImage() {
+        uploadedImage.value = null;
+        localStorage.removeItem('uploadedImage');
+    }
+    function addProcessedImage(image: any) {
+        uploadedImage.value = image;
+        localStorage.setItem('processedImage', JSON.stringify(image));
+    }
+
+    function removeProcessedImage() {
+        uploadedImage.value = null;
+        localStorage.removeItem('processedImage');
+    }
+
+    return { uploadedImage, processedImage, addImage, removeImage, addProcessedImage, removeProcessedImage }
 })

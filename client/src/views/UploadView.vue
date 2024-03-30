@@ -7,10 +7,11 @@
         import { useImageStore } from "@/stores/imageStore";
         import { postImage } from "@/api/ImageApi";
         import { ref, nextTick } from "vue";
+        import { jsPDF } from "jspdf";
 
 
         let file: File;
-        let resolution: {width: number, height: number};
+        let resolution: { width: number, height: number };
         const imageStore = useImageStore();
         const fileName = ref<string>('');
         const beingScanned = ref<boolean>(false);
@@ -19,6 +20,7 @@
         const checkboxCoords = ref<number[][]>();
         const scannedImage = ref<HTMLImageElement>();
         const domToActualRatio = ref<number>();
+        const form = ref<HTMLElement>();
 
         async function handleUpload($event: Event) {
             if ($event instanceof DragEvent && $event.dataTransfer?.files[0]) {
@@ -37,7 +39,7 @@
                     const image = new Image();
                     image.src = imageDataUrl;
                     image.onload = () => {
-                        resolve({width: image.naturalWidth, height: image.naturalHeight});
+                        resolve({ width: image.naturalWidth, height: image.naturalHeight });
                     };
                 });
             };
@@ -66,10 +68,29 @@
                 const { width } = scannedImage.value.getBoundingClientRect();
                 domToActualRatio.value = width / resolution.width;
                 checkboxCoords.value = checkboxCoords.value?.map((coords) => {
-                    return coords.map((coords) => coords * (domToActualRatio.value ?? 0));
+                    return coords.map((coords) => (coords * (domToActualRatio.value ?? 0) - 2.5));
                 })
-            } 
+            }
             beingScanned.value = false;
+        }
+
+        function download() {
+            const doc = new jsPDF();
+            console.log(form.value);
+            if (!form.value) return;
+            doc.html(form.value, {
+                html2canvas: {
+                    scale: domToActualRatio.value,
+                    logging: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: resolution.width,
+                    windowHeight: resolution.height,
+                },
+                callback: function (doc) {
+                    doc.save();
+                }
+            });
         }
 
 </script>
@@ -105,7 +126,8 @@
             <template #header>
                 {{ fileName }}
             </template>
-            <div class="relative">
+            <div class="relative"
+                 ref="form">
                 <input v-for="(coords, index) in checkboxCoords"
                        :key="index"
                        type="checkbox"
@@ -117,7 +139,8 @@
                      ref="scannedImage" />
             </div>
             <template #footer>
-                <button class="transition-colors bg-green-600 hover:bg-green-900 rounded-md mx-auto mt-2 size-10">
+                <button @click="download"
+                        class="transition-colors bg-green-600 hover:bg-green-900 rounded-md mx-auto mt-2 size-10">
                     <i class="bi bi-download text-2xl"></i>
                 </button>
             </template>

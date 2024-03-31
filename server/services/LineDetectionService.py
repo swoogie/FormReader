@@ -56,7 +56,7 @@ class LineDetectionService:
         return False
 
     def detect(self, resized_image):
-        preprocessed_image = self._preprocessor.canny(resized_image, 50, 150)
+        preprocessed_image = self._preprocessor.canny(resized_image, 50, 100)
 
         word_boxes = self._detect_words(preprocessed_image)
 

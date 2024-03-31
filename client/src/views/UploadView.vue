@@ -56,7 +56,7 @@
             try {
                 const response = await postImage(file);
                 checkboxCoords.value = response.checkbox;
-                inputFieldCoords.value = response.inputField;
+                inputFieldCoords.value = response.inputLine;
                 beingScanned.value = false;
                 error.value = '';
             } catch (e: any) {

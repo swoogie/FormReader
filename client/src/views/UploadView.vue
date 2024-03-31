@@ -56,7 +56,7 @@
             try {
                 const response = await postImage(file);
                 checkboxCoords.value = response.checkbox;
-                inputFieldCoords.value = response.inputField;
+                inputFieldCoords.value = response.inputLine;
                 beingScanned.value = false;
                 error.value = '';
             } catch (e: any) {
@@ -71,6 +71,9 @@
                 domToActualRatio.value = width / resolution.width;
                 checkboxCoords.value = checkboxCoords.value?.map((coords) => {
                     return coords.map((coords) => (coords * (domToActualRatio.value ?? 0) - 2.5));
+                })
+                inputFieldCoords.value = inputFieldCoords.value?.map((coords) => {
+                    return coords.map((coords) => (coords * (domToActualRatio.value ?? 0)));
                 })
             }
             beingScanned.value = false;
@@ -133,7 +136,12 @@
                        :key="index"
                        type="checkbox"
                        class="absolute"
-                       :style="`top: ${coords[1]}px; left: ${coords[0]}px`">
+                       :style="`left: ${coords[0]}px; top: ${coords[1]}px;`">
+                <input v-for="(coords, index) in inputFieldCoords"
+                       :key="index"
+                       type="text"
+                       class="absolute border"
+                       :style="`left: ${coords[0]}px; top: ${coords[1]}px; width: ${coords[2] - coords[0]}px`">
                 <img v-if="imageStore.uploadedImage"
                      class="max-h-[36rem] object-contain rounded-sm"
                      :src="imageStore.uploadedImage"

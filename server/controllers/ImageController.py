@@ -35,7 +35,10 @@ class ImageController:
     ):
         resized_image, ratio = image_reader.read_image(request.files['file']).resize_image(ImageController.MAX_IMAGE_SIZE)
         checkbox_coordinates = self._get_original_coords(ratio, checkbox_detector.detect(resized_image))
-        input_line_coordinates = self._get_original_coords(ratio, line_detector.detect(resized_image))
+        before_resize = line_detector.detect(resized_image)
+        for line in before_resize:
+            current_app.logger.info(line)
+        input_line_coordinates = self._get_original_coords(ratio, before_resize)
 
         return checkbox_coordinates, input_line_coordinates
 

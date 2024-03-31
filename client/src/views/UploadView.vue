@@ -18,6 +18,7 @@
         const showModal = ref<boolean>(false);
         const error = ref<string>('');
         const checkboxCoords = ref<number[][]>();
+        const inputFieldCoords = ref<number[][]>();
         const scannedImage = ref<HTMLImageElement>();
         const domToActualRatio = ref<number>();
         const form = ref<HTMLElement>();
@@ -25,7 +26,6 @@
         async function handleUpload($event: Event) {
             if ($event instanceof DragEvent && $event.dataTransfer?.files[0]) {
                 file = $event.dataTransfer?.files[0] as File;
-                console.log(file);
             } else {
                 const inputTarget = $event.target as HTMLInputElement;
                 if (!inputTarget.files?.[0]) return;
@@ -54,7 +54,9 @@
             showModal.value = false;
             beingScanned.value = true;
             try {
-                checkboxCoords.value = await postImage(file);
+                const response = await postImage(file);
+                checkboxCoords.value = response.checkbox;
+                inputFieldCoords.value = response.inputLine;
                 beingScanned.value = false;
                 error.value = '';
             } catch (e: any) {
@@ -70,13 +72,15 @@
                 checkboxCoords.value = checkboxCoords.value?.map((coords) => {
                     return coords.map((coords) => (coords * (domToActualRatio.value ?? 0) - 2.5));
                 })
+                inputFieldCoords.value = inputFieldCoords.value?.map((coords) => {
+                    return coords.map((coords) => (coords * (domToActualRatio.value ?? 0)));
+                })
             }
             beingScanned.value = false;
         }
 
         function download() {
             const doc = new jsPDF();
-            console.log(form.value);
             if (!form.value) return;
             doc.html(form.value, {
                 html2canvas: {
@@ -132,7 +136,12 @@
                        :key="index"
                        type="checkbox"
                        class="absolute"
-                       :style="`top: ${coords[1]}px; left: ${coords[0]}px`">
+                       :style="`left: ${coords[0]}px; top: ${coords[1]}px;`">
+                <input v-for="(coords, index) in inputFieldCoords"
+                       :key="index"
+                       type="text"
+                       class="absolute border"
+                       :style="`left: ${coords[0]}px; top: ${coords[1]}px; width: ${coords[2] - coords[0]}px`">
                 <img v-if="imageStore.uploadedImage"
                      class="max-h-[36rem] object-contain rounded-sm"
                      :src="imageStore.uploadedImage"

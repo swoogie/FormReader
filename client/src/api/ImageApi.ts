@@ -1,11 +1,15 @@
 import axios from "axios";
 
-export async function postImage(image: File): Promise<any> {
+export async function postImage(image: File): Promise<{checkbox: number[][], inputLine: number[][]}> {
     const formData = new FormData();
     formData.append('file', image);
-    return (await axios.post('/image', formData, {
+    const response = (await axios.post('/image', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
-    })).data['checkbox_coordinates'];
+    })).data;
+    return {
+        checkbox: response['checkbox_coordinates'],
+        inputLine: response['input_line_coordinates']
+    }
 }

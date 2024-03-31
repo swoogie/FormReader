@@ -3,17 +3,20 @@ import cv2
 import numpy as np
 
 class ImageReadingService:
-    def readImage(self, app, img_file):
+
+    def __init__(self):
+        self.image = None
+
+    def read_image(self, img_file):
         in_memory_file = io.BytesIO(img_file.read())
 
         img_array = np.array(bytearray(in_memory_file.read()), dtype=np.uint8)
-        image = cv2.imdecode(img_array, cv2.IMREAD_COLOR)  
+        self.image = cv2.imdecode(img_array, cv2.IMREAD_COLOR)  
 
-        max_size = 3000
+        return self
 
-        height, width = image.shape[:2]
-        app.logger.info(f'Original image size: {width}x{height}')
-
+    def resize_image(self, max_size): 
+        height, width = self.image.shape[:2]
         if width > height:
             new_width = max_size
             ratio = max_size / width
@@ -23,6 +26,6 @@ class ImageReadingService:
             ratio = max_size / height
             new_width = int(width * ratio)
 
-        resized_image = cv2.resize(image, (new_width, new_height))
+        resized_image = cv2.resize(self.image, (new_width, new_height))
 
         return resized_image, ratio

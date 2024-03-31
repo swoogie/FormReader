@@ -8,14 +8,12 @@ export const useImageStore = defineStore('imageStore', () => {
     const loadState = () => {
         uploadedImage.value = JSON.parse(localStorage.getItem("processedImage") || '""');
         processedImage.value = JSON.parse(localStorage.getItem("processedImage") || '""');
-        console.log(uploadedImage.value);
     };
     loadState();
 
     function addImage(image: any) {
         uploadedImage.value = image;
         localStorage.setItem('uploadedImage', JSON.stringify(image));
-        console.log(localStorage.getItem('uploadedImage'));
     }
     function removeImage() {
         uploadedImage.value = null;

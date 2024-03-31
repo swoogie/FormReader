@@ -18,6 +18,7 @@
         const showModal = ref<boolean>(false);
         const error = ref<string>('');
         const checkboxCoords = ref<number[][]>();
+        const inputFieldCoords = ref<number[][]>();
         const scannedImage = ref<HTMLImageElement>();
         const domToActualRatio = ref<number>();
         const form = ref<HTMLElement>();
@@ -25,7 +26,6 @@
         async function handleUpload($event: Event) {
             if ($event instanceof DragEvent && $event.dataTransfer?.files[0]) {
                 file = $event.dataTransfer?.files[0] as File;
-                console.log(file);
             } else {
                 const inputTarget = $event.target as HTMLInputElement;
                 if (!inputTarget.files?.[0]) return;
@@ -54,7 +54,9 @@
             showModal.value = false;
             beingScanned.value = true;
             try {
-                checkboxCoords.value = await postImage(file);
+                const response = await postImage(file);
+                checkboxCoords.value = response.checkbox;
+                inputFieldCoords.value = response.inputField;
                 beingScanned.value = false;
                 error.value = '';
             } catch (e: any) {
@@ -76,7 +78,6 @@
 
         function download() {
             const doc = new jsPDF();
-            console.log(form.value);
             if (!form.value) return;
             doc.html(form.value, {
                 html2canvas: {

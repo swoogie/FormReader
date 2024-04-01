@@ -10,7 +10,6 @@
         import { jsPDF } from "jspdf";
 
 
-        let file: File;
         let resolution: { width: number, height: number };
         const imageStore = useImageStore();
         const fileName = ref<string>('');
@@ -24,6 +23,7 @@
         const form = ref<HTMLElement>();
 
         async function handleUpload($event: Event) {
+            let file: File;
             if ($event instanceof DragEvent && $event.dataTransfer?.files[0]) {
                 file = $event.dataTransfer?.files[0] as File;
             } else {
@@ -34,7 +34,7 @@
             const fileReader = new FileReader();
             fileReader.onload = async (e) => {
                 const imageDataUrl = e.target?.result as string;
-                imageStore.addImage(imageDataUrl);
+                imageStore.addImage(imageDataUrl, file);
                 resolution = await new Promise((resolve) => {
                     const image = new Image();
                     image.src = imageDataUrl;
@@ -44,17 +44,18 @@
                 });
             };
             await new Promise<void>((resolve) => {
-                fileReader.onloadend = () => resolve();
+                error.value = '';
+                fileName.value = file['name'];
                 fileReader.readAsDataURL(file);
+                fileReader.onloadend = () => resolve();
             });
-            fileName.value = file['name'];
         }
 
         async function scanForm() {
             showModal.value = false;
             beingScanned.value = true;
             try {
-                const response = await postImage(file);
+                const response = await postImage(imageStore.storedFile);
                 checkboxCoords.value = response.checkbox;
                 inputFieldCoords.value = response.inputLine;
                 beingScanned.value = false;
@@ -106,7 +107,7 @@
         <PreviewHeader v-if="imageStore.uploadedImage"
                        :being-scanned="beingScanned"
                        @scanform="scanForm"
-                       @click="handleUpload" />
+                       @change.stop="handleUpload" />
 
         <div class="relative">
             <div v-if="beingScanned"
@@ -119,11 +120,15 @@
                 <p>Error: {{ error }}</p>
             </div>
             <img v-if="imageStore.uploadedImage"
-                 class="max-h-[32rem] rounded-lg object-contain"
+                 class="max-h-[50svh] rounded-lg object-contain"
                  :src="imageStore.uploadedImage" />
         </div>
-        <p v-if="fileName"
-           class="ms-2">{{ fileName }}</p>
+        <p v-if="imageStore.uploadedImage"
+           class="ms-2">{{ fileName }}
+            <button @click="imageStore.removeImage">
+                <i class="text-red-500 bi bi-x-lg"></i>
+            </button>
+        </p>
 
         <ModalComponent @close="showModal = false;"
                         :isVisible="showModal">
@@ -135,17 +140,20 @@
                 <input v-for="(coords, index) in checkboxCoords"
                        :key="index"
                        type="checkbox"
-                       class="absolute"
+                       class="absolute appearance-none"
                        :style="`left: ${coords[0]}px; top: ${coords[1]}px;`">
                 <input v-for="(coords, index) in inputFieldCoords"
                        :key="index"
                        type="text"
-                       class="absolute border"
-                       :style="`left: ${coords[0]}px; top: ${coords[1]}px; width: ${coords[2] - coords[0]}px`">
-                <img v-if="imageStore.uploadedImage"
-                     class="max-h-[36rem] object-contain rounded-sm"
-                     :src="imageStore.uploadedImage"
-                     ref="scannedImage" />
+                       class="absolute bg-transparent text-black text-xs"
+                       :style="`left: ${coords[0]}px; top: calc(${coords[1]}px - 18px); width: ${coords[2] - coords[0]}px`"
+                       style="font-family: Arial">
+                <div class="max-h-[90svh] overflow-scroll">
+                    <img v-if="imageStore.uploadedImage"
+                         class="rounded-sm"
+                         :src="imageStore.uploadedImage"
+                         ref="scannedImage" />
+                </div>
             </div>
             <template #footer>
                 <button @click="download"

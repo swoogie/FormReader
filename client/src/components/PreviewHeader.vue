@@ -22,6 +22,6 @@
             <i v-if="beingScanned"
                class="bi bi-hourglass-split"></i>
         </button>
-        <UploadButton class="size-16 justify-self-end"/>
+        <UploadButton :disabled="beingScanned" class="size-16 justify-self-end"/>
     </div>
 </template>

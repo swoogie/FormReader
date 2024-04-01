@@ -64,8 +64,9 @@ class LineDetectionService:
         dilated_image = cv2.dilate(preprocessed_image, kernel, iterations=1)
         lines = cv2.HoughLinesP(dilated_image, 1, np.pi/180, threshold=200, minLineLength=50, maxLineGap=3)
         vertical_lines = filter(lambda line: abs(line[0][3] - line[0][1]) < 3, lines)
+        sorted_lines = sorted(vertical_lines, key=lambda line: line[0][1])
 
-        aggregated_lines = self._filter_overlapping_lines(vertical_lines)
+        aggregated_lines = self._filter_overlapping_lines(sorted_lines)
 
         filtered_lines = []
         for line in aggregated_lines:

@@ -3,7 +3,10 @@
         import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
         import { ref, watch } from 'vue';
         import HelloWorld from './components/HelloWorld.vue'
+        import { useImageStore } from './stores/imageStore';
 
+
+        const imageStore = useImageStore();
         const pageTitle = ref("Form Reader");
         const msg = ref("Welcome! Login to see your forms");
 
@@ -34,7 +37,9 @@
 </script>
 
 <template>
-    <header class="flex justify-center mx-auto max-w-md leading-6 border-b border-gray-500 p-2 mb-8">
+    <header class="transition-all flex justify-center mx-auto max-w-md leading-6 border-b border-gray-500 p-2 mb-7 overflow-hidden"
+            :style="{'max-height': imageStore.uploadedImage ? '3rem' : '8rem'}"
+    >
         <div>
             <HelloWorld :pageTitle="pageTitle"
                         :msg="msg" />

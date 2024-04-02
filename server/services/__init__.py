@@ -2,3 +2,5 @@ from .PreprocessingService import PreprocessingService
 from .ImageReadingService import ImageReadingService
 from .CheckboxDetectionService import CheckboxDetectionService
 from .LineDetectionService import LineDetectionService
+from .CharInputDetectionService import CharInputDetectionService
+from .WordDetectionService import WordDetectionService

@@ -4,30 +4,25 @@ import { defineStore } from 'pinia'
 export const useImageStore = defineStore('imageStore', () => {
     const uploadedImage = ref();
     const processedImage = ref();
+    const storedFile = ref();
 
-    const loadState = () => {
-        uploadedImage.value = JSON.parse(localStorage.getItem("processedImage") || '""');
-        processedImage.value = JSON.parse(localStorage.getItem("processedImage") || '""');
-    };
-    loadState();
-
-    function addImage(image: any) {
-        uploadedImage.value = image;
-        localStorage.setItem('uploadedImage', JSON.stringify(image));
+    function addImage(imageDataUrl: any, file: any) {
+        uploadedImage.value = imageDataUrl;
+        storedFile.value = file;
     }
+
     function removeImage() {
         uploadedImage.value = null;
-        localStorage.removeItem('uploadedImage');
+        storedFile.value = null;
     }
-    function addProcessedImage(image: any) {
-        uploadedImage.value = image;
-        localStorage.setItem('processedImage', JSON.stringify(image));
+
+    function addProcessedImage(imageDataUrl: any) {
+        uploadedImage.value = imageDataUrl;
     }
 
     function removeProcessedImage() {
         uploadedImage.value = null;
-        localStorage.removeItem('processedImage');
     }
 
-    return { uploadedImage, processedImage, addImage, removeImage, addProcessedImage, removeProcessedImage }
+    return { storedFile, uploadedImage, processedImage, addImage, removeImage, addProcessedImage, removeProcessedImage }
 })

@@ -1,6 +1,6 @@
 <script setup
         lang="ts">
-        import { defineProps, ref, watch } from 'vue';
+        import { ref, watch } from 'vue';
 
         const props = defineProps<{
             isVisible: boolean
@@ -23,7 +23,7 @@
     <div v-if="isVisible"
          class="backdrop-blur-sm fixed inset-0 z-50 overflow-y-auto flex justify-center items-center">
         <div @click.self="closeModal"
-             class="fixed inset-0 bg-gray-700 bg-opacity-50"></div>
+             class="fixed inset-0 bg-opacity-50"></div>
         <div class="flex flex-col backdrop-blur-sm bg-white/70 dark:bg-zinc-800/70 p-2 rounded-md shadow-md">
             <div class="pb-2 relative">
                 <button @click="closeModal"

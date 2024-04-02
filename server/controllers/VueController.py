@@ -5,6 +5,7 @@ from flask import request, flash, redirect, url_for, jsonify, make_response, ren
 from werkzeug.utils import secure_filename
 from services import PreprocessingService
 from container import Container
+from controllers import ImageController
 
 
 class VueController:

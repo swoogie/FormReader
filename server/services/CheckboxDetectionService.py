@@ -32,7 +32,7 @@ class CheckboxDetectionService:
             approx = cv2.approxPolyDP(contour, epsilon, True)
             x, y, w, h = cv2.boundingRect(contour)
             aspect_ratio = w / float(h)
-            contour_area = cv2.contourArea(contour)
+            contour_area = w * float(h)
             if (len(approx) == 4 and 0.9 <= aspect_ratio <= 1.1 and 1000 <= contour_area <= 3000):
                 self._explore_hierarchy(i, hierarchy, contours, last_children)
                 for rect in last_children:

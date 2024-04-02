@@ -1,7 +1,11 @@
 from dependency_injector.wiring import inject, Provide
 import logging
 from flask import request, flash, redirect, jsonify, current_app
-from services import ImageReadingService, CheckboxDetectionService, LineDetectionService
+from services import ImageReadingService, \
+                     CheckboxDetectionService, \
+                     LineDetectionService, \
+                     WordDetectionService, \
+                     CharInputDetectionService
 from container import Container
 
 
@@ -31,13 +35,17 @@ class ImageController:
         self,
         image_reader: ImageReadingService = Provide[Container.image_reader],
         checkbox_detector: CheckboxDetectionService = Provide[Container.checkbox_detector],
-        line_detector: LineDetectionService = Provide[Container.line_detector]
+        line_detector: LineDetectionService = Provide[Container.line_detector],
+        word_detector: WordDetectionService = Provide[Container.word_detector],
+        char_input_detector: CharInputDetectionService = Provide[Container.char_input_detector]
     ):
         resized_image, ratio = image_reader.read_image(request.files['file']).resize_image(ImageController.MAX_IMAGE_SIZE)
+        red_zones = word_detector.detect(resized_image)
+        char_input_coordinates = self._get_original_coords(ratio, char_input_detector.detect(resized_image, red_zones))
         checkbox_coordinates = self._get_original_coords(ratio, checkbox_detector.detect(resized_image))
         input_line_coordinates = self._get_original_coords(ratio, line_detector.detect(resized_image))
 
-        return checkbox_coordinates, input_line_coordinates
+        return checkbox_coordinates, input_line_coordinates, char_input_coordinates
 
     def allowed_file(self, filename):
         return '.' in filename and \
@@ -50,3 +58,6 @@ class ImageController:
             x1, y1, x2, y2 = map(lambda coord: int(coord / ratio), coords)
             response_coords.append([x1, y1, x2, y2])
         return response_coords
+
+    def _check_for_overlaps(self, coords, red_zones):
+        raise NotImplementedError

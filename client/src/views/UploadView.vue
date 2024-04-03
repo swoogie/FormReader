@@ -5,6 +5,8 @@
         import ModalComponent from "@/components/ModalComponent.vue";
         import DragAndDrop from "@/components/DragAndDrop.vue";
         import CustomCheckbox from "@/components/CustomCheckbox.vue";
+        import CharBox from "@/components/CharBox.vue";
+        import InputField from "@/components/InputField.vue";
         import { useImageStore } from "@/stores/imageStore";
         import { postImage } from "@/api/ImageApi";
         import { ref, nextTick, onMounted } from "vue";
@@ -110,56 +112,6 @@
             fileName.value = '';
             error.value = '';
         }
-
-        // async function nextSibling(index: any) {
-        //     console.log(charBoxes.value)
-        //     if (charBoxes.value[index] !== undefined) {
-        //         charBoxes.value[index].focus();
-        //         console.log(charBoxes.value[index])
-        //     }
-        // }
-        async function nextSibling(target: any) {
-            const nextElement = target.nextElementSibling;
-            if (nextElement) {
-                setTimeout(() => {
-                    nextElement.focus();
-                }, 0);
-            }
-        }
-
-        // function switchOnKeyDown($) {
-
-        // }
-
-        // onMounted(() => {
-        //     for (let elem of inputs) {
-        //     elem.addEventListener('keydown', function(event) {
-        //         //Right Arrow Key
-        //         if (event.keyCode == 39) {
-        //         this.nextElementSibling.focus();
-        //         }
-        //         //Left Arrow Key
-        //         //Add Highlight
-        //         if (event.keyCode == 37) {
-        //         this.previousElementSibling.focus();
-        //         }
-        //         //Backspace Key
-        //         if (event.keyCode == 8 && event.metaKey) {
-        //         console.log('🐰🥚 FOUND!!! Cmd + Backspace = clear all');
-        //         for (innerElem of inputs) {
-        //             innerElem.value = '';
-        //         }
-        //         inputs[0].focus();
-        //         } else if (event.keyCode == 8) {
-        //         if(elem.value === '') {
-        //             this.previousElementSibling.focus();
-        //             return;
-        //         }
-        //         elem.value = '';
-        //         }
-        //     });
-        //     }
-        // })
 </script>
 
 <template>
@@ -200,26 +152,17 @@
             <div class="relative"
                  ref="form">
                 <CustomCheckbox v-for="(coords, index) in checkboxCoords"
-                                class="absolute"
                                 :key="index"
                                 :style="`left: ${coords[0]}px; top: ${coords[1]}px;`" />
-                <input v-for="(coords, index) in charBoxCoords"
-                       :key="index"
-                       type="text"
-                       maxlength="1"
-                       class="absolute bg-transparent text-black text-base h-8"
-                       @input="nextSibling($event.target)"
-                       :style="`left: ${coords[0]}px; top: ${coords[1]}px; width: ${coords[2] - coords[0]}px`"
-                       style="font-family: Arial">
-                <input v-for="(coords, index) in inputFieldCoords"
-                       :key="index"
-                       type="text"
-                       class="absolute bg-transparent text-black text-xs"
-                       :style="`left: ${coords[0]}px; top: calc(${coords[1]}px - 18px); width: ${coords[2] - coords[0]}px`"
-                       style="font-family: Arial">
+                <CharBox v-for="(coords, index) in charBoxCoords"
+                         :key="index"
+                         :style="`left: ${coords[0]}px; top: ${coords[1]}px; width: ${coords[2] - coords[0]}px`" />
+                <InputField v-for="(coords, index) in inputFieldCoords"
+                            :key="index"
+                            :style="`left: ${coords[0]}px; top: calc(${coords[1]}px - 18px); width: ${coords[2] - coords[0]}px`" />
                 <div class="max-h-[90svh]">
                     <img v-if="imageStore.uploadedImage"
-                         class="rounded-sm"
+                         class="rounded-sm object-contain max-h-[90svh] w-full"
                          :src="imageStore.uploadedImage"
                          ref="scannedImage" />
                 </div>

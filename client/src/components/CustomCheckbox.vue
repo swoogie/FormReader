@@ -1,5 +1,5 @@
 <template>
-    <div class="inline-flex items-center">
+    <div class="absolute inline-flex items-center">
         <label class="relative flex items-center p-[2px]"
                htmlFor="custom">
             <input type="checkbox"

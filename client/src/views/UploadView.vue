@@ -111,13 +111,6 @@
             error.value = '';
         }
 
-        // async function nextSibling(index: any) {
-        //     console.log(charBoxes.value)
-        //     if (charBoxes.value[index] !== undefined) {
-        //         charBoxes.value[index].focus();
-        //         console.log(charBoxes.value[index])
-        //     }
-        // }
         async function nextSibling(target: any) {
             const nextElement = target.nextElementSibling;
             if (nextElement) {
@@ -126,40 +119,6 @@
                 }, 0);
             }
         }
-
-        // function switchOnKeyDown($) {
-
-        // }
-
-        // onMounted(() => {
-        //     for (let elem of inputs) {
-        //     elem.addEventListener('keydown', function(event) {
-        //         //Right Arrow Key
-        //         if (event.keyCode == 39) {
-        //         this.nextElementSibling.focus();
-        //         }
-        //         //Left Arrow Key
-        //         //Add Highlight
-        //         if (event.keyCode == 37) {
-        //         this.previousElementSibling.focus();
-        //         }
-        //         //Backspace Key
-        //         if (event.keyCode == 8 && event.metaKey) {
-        //         console.log('🐰🥚 FOUND!!! Cmd + Backspace = clear all');
-        //         for (innerElem of inputs) {
-        //             innerElem.value = '';
-        //         }
-        //         inputs[0].focus();
-        //         } else if (event.keyCode == 8) {
-        //         if(elem.value === '') {
-        //             this.previousElementSibling.focus();
-        //             return;
-        //         }
-        //         elem.value = '';
-        //         }
-        //     });
-        //     }
-        // })
 </script>
 
 <template>

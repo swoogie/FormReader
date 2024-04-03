@@ -112,6 +112,15 @@
             fileName.value = '';
             error.value = '';
         }
+
+        async function nextSibling(target: any) {
+            const nextElement = target.nextElementSibling;
+            if (nextElement) {
+                setTimeout(() => {
+                    nextElement.focus();
+                }, 0);
+            }
+        }
 </script>
 
 <template>

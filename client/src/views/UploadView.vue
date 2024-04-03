@@ -4,9 +4,10 @@
         import PreviewHeader from "@/components/PreviewHeader.vue";
         import ModalComponent from "@/components/ModalComponent.vue";
         import DragAndDrop from "@/components/DragAndDrop.vue";
+        import CustomCheckbox from "@/components/CustomCheckbox.vue";
         import { useImageStore } from "@/stores/imageStore";
         import { postImage } from "@/api/ImageApi";
-        import { ref, nextTick } from "vue";
+        import { ref, nextTick, onMounted } from "vue";
         import { jsPDF } from "jspdf";
 
 
@@ -18,9 +19,11 @@
         const error = ref<string>('');
         const checkboxCoords = ref<number[][]>();
         const inputFieldCoords = ref<number[][]>();
+        const charBoxCoords = ref<number[][]>();
         const scannedImage = ref<HTMLImageElement>();
         const domToActualRatio = ref<number>();
         const form = ref<HTMLElement>();
+        const charBoxes = ref<HTMLElement>();
 
         async function handleUpload($event: Event) {
             let file: File;
@@ -58,6 +61,7 @@
                 const response = await postImage(imageStore.storedFile);
                 checkboxCoords.value = response.checkbox;
                 inputFieldCoords.value = response.inputLine;
+                charBoxCoords.value = response.charBox.reverse();
                 beingScanned.value = false;
                 error.value = '';
             } catch (e: any) {
@@ -74,6 +78,9 @@
                     return coords.map((coords) => (coords * (domToActualRatio.value ?? 0) - 2.5));
                 })
                 inputFieldCoords.value = inputFieldCoords.value?.map((coords) => {
+                    return coords.map((coords) => (coords * (domToActualRatio.value ?? 0)));
+                })
+                charBoxCoords.value = charBoxCoords.value?.map((coords) => {
                     return coords.map((coords) => (coords * (domToActualRatio.value ?? 0)));
                 })
             }
@@ -98,6 +105,61 @@
             });
         }
 
+        function removeImage() {
+            imageStore.removeImage();
+            fileName.value = '';
+            error.value = '';
+        }
+
+        // async function nextSibling(index: any) {
+        //     console.log(charBoxes.value)
+        //     if (charBoxes.value[index] !== undefined) {
+        //         charBoxes.value[index].focus();
+        //         console.log(charBoxes.value[index])
+        //     }
+        // }
+        async function nextSibling(target: any) {
+            const nextElement = target.nextElementSibling;
+            if (nextElement) {
+                setTimeout(() => {
+                    nextElement.focus();
+                }, 0);
+            }
+        }
+
+        // function switchOnKeyDown($) {
+
+        // }
+
+        // onMounted(() => {
+        //     for (let elem of inputs) {
+        //     elem.addEventListener('keydown', function(event) {
+        //         //Right Arrow Key
+        //         if (event.keyCode == 39) {
+        //         this.nextElementSibling.focus();
+        //         }
+        //         //Left Arrow Key
+        //         //Add Highlight
+        //         if (event.keyCode == 37) {
+        //         this.previousElementSibling.focus();
+        //         }
+        //         //Backspace Key
+        //         if (event.keyCode == 8 && event.metaKey) {
+        //         console.log('🐰🥚 FOUND!!! Cmd + Backspace = clear all');
+        //         for (innerElem of inputs) {
+        //             innerElem.value = '';
+        //         }
+        //         inputs[0].focus();
+        //         } else if (event.keyCode == 8) {
+        //         if(elem.value === '') {
+        //             this.previousElementSibling.focus();
+        //             return;
+        //         }
+        //         elem.value = '';
+        //         }
+        //     });
+        //     }
+        // })
 </script>
 
 <template>
@@ -125,7 +187,7 @@
         </div>
         <p v-if="imageStore.uploadedImage"
            class="ms-2">{{ fileName }}
-            <button @click="imageStore.removeImage">
+            <button @click="removeImage">
                 <i class="text-red-500 bi bi-x-lg"></i>
             </button>
         </p>
@@ -137,18 +199,25 @@
             </template>
             <div class="relative"
                  ref="form">
-                <input v-for="(coords, index) in checkboxCoords"
+                <CustomCheckbox v-for="(coords, index) in checkboxCoords"
+                                class="absolute"
+                                :key="index"
+                                :style="`left: ${coords[0]}px; top: ${coords[1]}px;`" />
+                <input v-for="(coords, index) in charBoxCoords"
                        :key="index"
-                       type="checkbox"
-                       class="absolute appearance-none"
-                       :style="`left: ${coords[0]}px; top: ${coords[1]}px;`">
+                       type="text"
+                       maxlength="1"
+                       class="absolute bg-transparent text-black text-base h-8"
+                       @input="nextSibling($event.target)"
+                       :style="`left: ${coords[0]}px; top: ${coords[1]}px; width: ${coords[2] - coords[0]}px`"
+                       style="font-family: Arial">
                 <input v-for="(coords, index) in inputFieldCoords"
                        :key="index"
                        type="text"
                        class="absolute bg-transparent text-black text-xs"
                        :style="`left: ${coords[0]}px; top: calc(${coords[1]}px - 18px); width: ${coords[2] - coords[0]}px`"
                        style="font-family: Arial">
-                <div class="max-h-[90svh] overflow-scroll">
+                <div class="max-h-[90svh]">
                     <img v-if="imageStore.uploadedImage"
                          class="rounded-sm"
                          :src="imageStore.uploadedImage"

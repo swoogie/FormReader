@@ -94,13 +94,12 @@
             error.value = '';
         }
 
-        function imageLoaded(event: Event) {
-            const img = event.target as HTMLImageElement;
-            if (resolution) {
-                domToActualRatio.value = img.width / resolution[0];
-                checkboxCoords.value = mapToRatio(checkboxCoords.value ?? [], 2.5)
-                inputFieldCoords.value = mapToRatio(inputFieldCoords.value ?? [], 2.5)
-                charBoxCoords.value = mapToRatio(charBoxCoords.value ?? [], 2.5)
+        async function nextSibling(target: any) {
+            const nextElement = target.nextElementSibling;
+            if (nextElement) {
+                setTimeout(() => {
+                    nextElement.focus();
+                }, 0);
             }
         }
 </script>

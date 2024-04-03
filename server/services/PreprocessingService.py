@@ -27,8 +27,8 @@ class PreprocessingService:
             return cropped_img
         return img 
 
-    def resize_image(self, max_size: int): 
-        height, width = self.image.shape[:2]
+    def resize_image(self, image, max_size: int): 
+        height, width = image.shape[:2]
         if width > height:
             new_width = max_size
             ratio = max_size / width
@@ -38,7 +38,7 @@ class PreprocessingService:
             ratio = max_size / height
             new_width = int(width * ratio)
 
-        resized_image = cv2.resize(self.image, (new_width, new_height))
+        resized_image = cv2.resize(image, (new_width, new_height))
         return resized_image, ratio
 
     def deskew(self):

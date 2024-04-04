@@ -2,7 +2,7 @@ FROM python:3.11.8-alpine3.18
 
 WORKDIR /app
 
-RUN apk add --update tesseract-ocr py3-opencv
+RUN apk add --update tesseract-ocr tesseract-ocr-data-eng tesseract-ocr-data-osd py3-opencv
 
 RUN apk cache clean
 

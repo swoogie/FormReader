@@ -8,8 +8,8 @@
         import CharBox from "@/components/CharBox.vue";
         import InputField from "@/components/InputField.vue";
         import { useImageStore } from "@/stores/imageStore";
-        import { postImage } from "@/api/ImageApi";
-        import { ref, nextTick, onMounted } from "vue";
+        import { postImage, postImageForCropping } from "@/api/ImageApi";
+        import { ref, nextTick } from "vue";
         import { jsPDF } from "jspdf";
 
 
@@ -25,7 +25,7 @@
         const scannedImage = ref<HTMLImageElement>();
         const domToActualRatio = ref<number>();
         const form = ref<HTMLElement>();
-        const charBoxes = ref<HTMLElement>();
+        const procImg = ref();
 
         async function handleUpload($event: Event) {
             let file: File;
@@ -56,37 +56,41 @@
             });
         }
 
-        async function scanForm() {
+        function mapToRatio(elementCoords: number[][], offset: number = 0) {
+            return elementCoords.map((coords) => {
+                return coords.map((coords) => (coords * (domToActualRatio.value ?? 0) - offset));
+            });
+        }
+
+        function scanForm() {
+            let resolution;
             showModal.value = false;
             beingScanned.value = true;
-            try {
-                const response = await postImage(imageStore.storedFile);
-                checkboxCoords.value = response.checkbox;
-                inputFieldCoords.value = response.inputLine;
-                charBoxCoords.value = response.charBox.reverse();
+            Promise.all([postImage(imageStore.storedFile), postImageForCropping(imageStore.storedFile)]).then(async (values) => {
+                checkboxCoords.value = values[0].checkbox;
+                inputFieldCoords.value = values[0].inputLine;
+                charBoxCoords.value = values[0].charBox.reverse();
+                resolution = values[0].resolution;
+                procImg.value = values[1];
+                imageStore.addProcessedImage(values[1]);
                 beingScanned.value = false;
-                error.value = '';
-            } catch (e: any) {
+                showModal.value = true;
+                console.log(resolution)
+                console.log(scannedImage.value)
+                await nextTick();
+                if (scannedImage.value && resolution) {
+                    // const { width } = scannedImage.value.getBoundingClientRect(); TODO: Fix this
+                    // console.log(width, resolution[0])
+                    domToActualRatio.value = 779 / resolution[0];
+                    console.log('ratio: ', domToActualRatio.value)
+                    checkboxCoords.value = mapToRatio(checkboxCoords.value ?? [], 2.5)
+                    inputFieldCoords.value = mapToRatio(inputFieldCoords.value ?? [], 2.5)
+                    charBoxCoords.value = mapToRatio(charBoxCoords.value ?? [], 2.5)
+                }
+            }).catch((e) => {
                 error.value = e.message;
                 beingScanned.value = false;
-                return;
-            }
-            showModal.value = true;
-            await nextTick();
-            if (scannedImage.value) {
-                const { width } = scannedImage.value.getBoundingClientRect();
-                domToActualRatio.value = width / resolution.width;
-                checkboxCoords.value = checkboxCoords.value?.map((coords) => {
-                    return coords.map((coords) => (coords * (domToActualRatio.value ?? 0) - 2.5));
-                })
-                inputFieldCoords.value = inputFieldCoords.value?.map((coords) => {
-                    return coords.map((coords) => (coords * (domToActualRatio.value ?? 0)));
-                })
-                charBoxCoords.value = charBoxCoords.value?.map((coords) => {
-                    return coords.map((coords) => (coords * (domToActualRatio.value ?? 0)));
-                })
-            }
-            beingScanned.value = false;
+            });
         }
 
         function download() {
@@ -161,9 +165,9 @@
                             :key="index"
                             :style="`left: ${coords[0]}px; top: calc(${coords[1]}px - 18px); width: ${coords[2] - coords[0]}px`" />
                 <div class="max-h-[90svh]">
-                    <img v-if="imageStore.uploadedImage"
+                    <img v-if="procImg"
                          class="rounded-sm object-contain max-h-[90svh] w-full"
-                         :src="imageStore.uploadedImage"
+                         :src="procImg"
                          ref="scannedImage" />
                 </div>
             </div>

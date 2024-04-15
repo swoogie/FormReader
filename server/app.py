@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_vite import Vite
 import os
 from controllers import ImageController, VueController
 from container import Container
@@ -24,10 +25,13 @@ def create_app() -> Flask:
     app.add_url_rule("/<string:text>", "vue")
     app.add_url_rule("/<path:text>", "vue")
     app.add_url_rule("/image", "handle",
-                     ImageController().handle, methods=["GET", "POST", "OPTIONS"])
+                     ImageController().handle, methods=['POST'])
+    app.add_url_rule("/crop", "crop",
+                     ImageController().crop, methods=['POST'])
 
     return app
 
 if __name__ == "__main__":
     app = create_app()
+    vite = Vite(app)
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

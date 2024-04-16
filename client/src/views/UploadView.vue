@@ -9,7 +9,7 @@
         import InputField from "@/components/InputField.vue";
         import { useImageStore } from "@/stores/imageStore";
         import { postImage, postImageForCropping } from "@/api/ImageApi";
-        import { ref, nextTick } from "vue";
+        import { ref } from "vue";
         import { jsPDF } from "jspdf";
 
 
@@ -24,7 +24,6 @@
         const charBoxCoords = ref<number[][]>();
         const domToActualRatio = ref<number>();
         const form = ref<HTMLElement>();
-        const procImg = ref();
 
         async function handleUpload($event: Event) {
             let file: File;
@@ -54,35 +53,21 @@
             });
         }
 
-        function scanForm() {
-            let resolution;
+        async function scanForm() {
             showModal.value = false;
             beingScanned.value = true;
-            Promise.all([postImage(imageStore.storedFile), postImageForCropping(imageStore.storedFile)]).then(async (values) => {
+            await Promise.all([postImage(imageStore.storedFile), postImageForCropping(imageStore.storedFile)]).then((values) => {
                 checkboxCoords.value = values[0].checkbox;
                 inputFieldCoords.value = values[0].inputLine;
                 charBoxCoords.value = values[0].charBox.reverse();
                 resolution = values[0].resolution;
-                procImg.value = values[1];
                 imageStore.addProcessedImage(values[1]);
-                beingScanned.value = false;
-                showModal.value = true;
-                console.log(resolution)
-                console.log(scannedImage.value)
-                await nextTick();
-                if (scannedImage.value && resolution) {
-                    // const { width } = scannedImage.value.getBoundingClientRect(); TODO: Fix this
-                    // console.log(width, resolution[0])
-                    domToActualRatio.value = 779 / resolution[0];
-                    console.log('ratio: ', domToActualRatio.value)
-                    checkboxCoords.value = mapToRatio(checkboxCoords.value ?? [], 2.5)
-                    inputFieldCoords.value = mapToRatio(inputFieldCoords.value ?? [], 2.5)
-                    charBoxCoords.value = mapToRatio(charBoxCoords.value ?? [], 2.5)
-                }
             }).catch((e) => {
                 error.value = e.message;
                 beingScanned.value = false;
             });
+            beingScanned.value = false;
+            showModal.value = true;
         }
 
         function download() {
@@ -107,6 +92,16 @@
             imageStore.removeImage();
             fileName.value = '';
             error.value = '';
+        }
+
+        function imageLoaded(event: Event) {
+            const img = event.target as HTMLImageElement;
+            if (resolution) {
+                domToActualRatio.value = img.width / resolution[0];
+                checkboxCoords.value = mapToRatio(checkboxCoords.value ?? [], 2.5)
+                inputFieldCoords.value = mapToRatio(inputFieldCoords.value ?? [], 2.5)
+                charBoxCoords.value = mapToRatio(charBoxCoords.value ?? [], 2.5)
+            }
         }
 </script>
 
@@ -158,10 +153,10 @@
                             :key="index"
                             :style="`left: ${coords[0]}px; top: calc(${coords[1]}px - 12px); width: ${coords[2] - coords[0]}px; height: 10px`" />
                 <div class="max-h-[90svh]">
-                    <img v-if="procImg"
+                    <img v-if="imageStore.processedImage"
                          class="rounded-sm object-contain max-h-[90svh] w-full"
-                         :src="procImg"
-                         ref="scannedImage" />
+                         :src="imageStore.processedImage"
+                         @load="imageLoaded" />
                 </div>
             </div>
             <template #footer>

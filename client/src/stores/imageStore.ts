@@ -17,11 +17,11 @@ export const useImageStore = defineStore('imageStore', () => {
     }
 
     function addProcessedImage(imageDataUrl: any) {
-        uploadedImage.value = imageDataUrl;
+        processedImage.value = imageDataUrl;
     }
 
     function removeProcessedImage() {
-        uploadedImage.value = null;
+        processedImage.value = null;
     }
 
     return { storedFile, uploadedImage, processedImage, addImage, removeImage, addProcessedImage, removeProcessedImage }

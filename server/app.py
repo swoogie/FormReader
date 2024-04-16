@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_vite import Vite
 import os
 from controllers import ImageController, VueController
 from container import Container
@@ -33,5 +32,4 @@ def create_app() -> Flask:
 
 if __name__ == "__main__":
     app = create_app()
-    vite = Vite(app)
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

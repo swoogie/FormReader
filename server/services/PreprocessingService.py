@@ -46,7 +46,7 @@ class PreprocessingService:
             for i, pt in enumerate(pts2):
                 index = np.argmin(np.sum((pts1 - pt) ** 2, axis=1))
                 sorted_pts1[i] = pts1[index]
-            matrix = cv2.getPerspectiveTransform(sorted_pts1, pts2)
+            matrix = cv2.getPerspectiveTransform(pts1, pts2)
             warped = cv2.warpPerspective(img, matrix, (width, height)) 
 
             return warped

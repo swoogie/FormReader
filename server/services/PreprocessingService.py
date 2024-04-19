@@ -43,7 +43,11 @@ class PreprocessingService:
 
         if paper_contour is not None:
             pts1 = np.float32(paper_contour.reshape(-1, 2))
-            pts2 = np.float32([[0, 0], [0, height], [width, height], [width, 0]])
+            pts2 = np.float32([[0, 0], [0, height], [width, 0], [width, height]])
+            sorted_pts1 = np.zeros_like(pts1)
+            for i, pt in enumerate(pts2):
+                index = np.argmin(np.sum((pts1 - pt) ** 2, axis=1))
+                sorted_pts1[i] = pts1[index]
             matrix = cv2.getPerspectiveTransform(pts1, pts2)
             warped = cv2.warpPerspective(img, matrix, (width, height)) 
 

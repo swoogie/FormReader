@@ -47,9 +47,9 @@
                 <RouterLink class="px-2 duration-150 transition-colors hover:bg-green-400 hover:bg-opacity-50"
                             to="/">Home</RouterLink>
                 <RouterLink class="px-2 duration-150 border-l border-gray-500 transition-colors hover:bg-green-400 hover:bg-opacity-50"
-                            to="/camera">Camera</RouterLink>
-                <RouterLink class="px-2 duration-150 border-l border-gray-500 transition-colors hover:bg-green-400 hover:bg-opacity-50"
                             to="/upload">Upload</RouterLink>
+                <RouterLink class="px-2 duration-150 border-l border-gray-500 transition-colors hover:bg-green-400 hover:bg-opacity-50"
+                            to="/camera">Camera</RouterLink>
             </nav>
         </div>
     </header>

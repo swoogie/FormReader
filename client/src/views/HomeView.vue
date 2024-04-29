@@ -10,7 +10,8 @@
         <i class="bi bi-file-earmark-text text-2xl"></i>
       </template>
       <template #heading>Provide form</template>
-      Upload or take a picture of your form
+        <RouterLink class="text-green-400"
+                    to="/upload">Upload</RouterLink> or take a picture of your form
     </WelcomeItem>
 
     <WelcomeItem>

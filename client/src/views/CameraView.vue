@@ -9,9 +9,10 @@
 </script>
 
 <template>
-    <main>
-        <p v-if="!isCaptureSupported()" class="flex place-content-center place-items-center">
-            Camera capture is not supported on this browser. Try a mobile browser instead. 
+    <main class="flex flex-col place-content-center place-items-center">
+        <i class="bi bi-camera-video-off text-9xl text-zinc-700/50"></i>
+        <p v-if="!isCaptureSupported()" class="text-center mt-2">
+            Camera capture is not supported on this browser. Use a mobile browser instead. 
         </p>
     </main>
 </template>

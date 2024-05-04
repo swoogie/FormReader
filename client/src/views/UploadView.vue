@@ -107,7 +107,8 @@
 
 <template>
     <main class="flex flex-col items-center relative h-5/6">
-        <DragAndDrop @drop.stop.prevent="handleUpload"
+        <DragAndDrop v-if="!imageStore.uploadedImage"
+                     @drop.stop.prevent="handleUpload"
                      @change="handleUpload" />
         <PreviewHeader v-if="imageStore.uploadedImage"
                        :being-scanned="beingScanned"
@@ -150,7 +151,7 @@
                          :style="`left: calc(${coords[0]}px + 3px); top: calc(${coords[1]}px + 2px); width: ${coords[2] - coords[0]}px; height: ${coords[3] - coords[1]}px`" />
                 <InputField v-for="(coords, index) in inputFieldCoords"
                             :key="index"
-                            :style="`left: ${coords[0]}px; top: calc(${coords[1]}px - 12px); width: ${coords[2] - coords[0]}px; height: ${coords[3] - coords[1]}px`" />
+                            :style="`left: ${coords[0]}px; top: calc(${coords[1]}px - 12px); width: ${coords[2] - coords[0]}px; height: 10px`" />
                 <div class="max-h-[90svh]">
                     <img v-if="imageStore.processedImage"
                          class="rounded-sm object-contain max-h-[90svh] w-full"

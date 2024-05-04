@@ -6,4 +6,8 @@
     .primary-gradient {
         @apply bg-gradient-to-r from-green-400 via-blue-400 to-purple-400;
     }
+
+    .primary-gradient-text {
+        @apply bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 text-transparent bg-clip-text;
+    }
 }

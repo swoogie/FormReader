@@ -18,9 +18,7 @@ class PreprocessingService:
     def find_and_crop_paper(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-
-        edges = cv2.Canny(blurred, 50, 100)
-
+        edges = cv2.Canny(blurred, 75, 200)
         contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contours = sorted(contours, key=cv2.contourArea, reverse=True)
         paper_contour = None
@@ -43,8 +41,12 @@ class PreprocessingService:
 
         if paper_contour is not None:
             pts1 = np.float32(paper_contour.reshape(-1, 2))
-            pts2 = np.float32([[0, 0], [0, height], [width, height], [width, 0]])
-            matrix = cv2.getPerspectiveTransform(pts1, pts2)
+            pts2 = np.float32([[0, 0], [0, height], [width, 0], [width, height]])
+            sorted_pts1 = np.zeros_like(pts1)
+            for i, pt in enumerate(pts2):
+                index = np.argmin(np.sum((pts1 - pt) ** 2, axis=1))
+                sorted_pts1[i] = pts1[index]
+            matrix = cv2.getPerspectiveTransform(sorted_pts1, pts2)
             warped = cv2.warpPerspective(img, matrix, (width, height)) 
 
             return warped

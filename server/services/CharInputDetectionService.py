@@ -16,7 +16,7 @@ class CharInputDetectionService:
             x, y, w, h = cv2.boundingRect(contour)
             aspect_ratio = w / float(h)
             contour_area = w * float(h)
-            if (0.7 <= aspect_ratio <= 0.9 and contour_area > 2000):
+            if (0.7 <= aspect_ratio <= 0.9 and 1000 <= contour_area <= 4000):
                 rectangles.append((x, y, x + w, y + h))
 
         return rectangles

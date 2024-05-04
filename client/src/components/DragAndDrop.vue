@@ -1,19 +1,23 @@
 <script setup
         lang="ts">
-        import UploadButton from "@/components/UploadButton.vue";
-        import { useImageStore } from "@/stores/imageStore";
         import { ref } from "vue";
-        const imageStore = useImageStore();
         const isDraggedOver = ref<boolean>(false);
 </script>
 <template>
-    <label v-if="!imageStore.uploadedImage"
-           for="fileInput"
+    <label for="fileInput"
            @dragover.prevent="isDraggedOver = true;"
            @dragleave.prevent="isDraggedOver = false;"
-           class="flex flex-col items-center justify-center px-10 w-[70svw] max-w-[700px] max-h-[500px] h-[50svh] border-dashed border-gray-500 border-2 rounded-md"
+           class="group flex flex-col items-center justify-center px-10 
+           w-[70svw] max-w-[700px] max-h-[500px] h-[50svh] 
+           border-dashed border-gray-500 border-2 rounded-md cursor-pointer"
            :class="{ 'border-green-500': isDraggedOver }">
-        <UploadButton :disabled='false' class="size-32"/>
-        <p class="mt-7 transition-all text-xs sm:text-base">Drag and drop your .png or .jp(e)g image here or click to select.</p>
+        <input id="fileInput"
+               type="file"
+               class="hidden"
+               accept="image/png, image/jpeg, image/jpg" />
+        <i class="bi bi-file-earmark-arrow-up text-9xl text-zinc-700/50
+           animate-pulse group-hover:animate-none group-hover:primary-gradient-text"></i>
+        <p class="mt-7 transition-all text-xs sm:text-base">Drag and drop your .png or .jp(e)g image here or click to
+            select.</p>
     </label>
 </template>

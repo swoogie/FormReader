@@ -1,5 +1,5 @@
 <template>
-  <div class="flex mt-5 bg-zinc-100 rounded-md p-3 dark:bg-zinc-800">
+  <div class="flex mt-5 bg-zinc-200/50 rounded-md p-3 dark:bg-zinc-800/50">
     <i class="flex place-content-center place-items-center size-8">
       <slot name="icon"></slot>
     </i>

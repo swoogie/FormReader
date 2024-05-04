@@ -107,7 +107,8 @@
 
 <template>
     <main class="flex flex-col items-center relative h-5/6">
-        <DragAndDrop @drop.stop.prevent="handleUpload"
+        <DragAndDrop v-if="!imageStore.uploadedImage"
+                     @drop.stop.prevent="handleUpload"
                      @change="handleUpload" />
         <PreviewHeader v-if="imageStore.uploadedImage"
                        :being-scanned="beingScanned"

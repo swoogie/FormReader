@@ -22,6 +22,10 @@
         const charBoxCoords = ref<number[][]>();
         const domToActualRatio = ref<number>();
         const form = ref<HTMLElement>();
+        const checkboxRefs = ref([]);
+        const inputRefs = ref([]);
+        const charBoxRefs = ref([]);
+
 
 
         async function handleUpload($event: Event) {
@@ -46,30 +50,30 @@
             });
         }
 
-        function mapToRatio(elementCoords: number[][], offset: number = 0) {
-            return elementCoords.map((coords) => {
-                return coords.map((coords) => (coords * (domToActualRatio.value ?? 0) - offset));
-            });
-        }
-
         async function scanForm() {
             showModal.value = false;
             beingScanned.value = true;
-            await Promise.all([postImage(imageStore.storedFile), postImageForCropping(imageStore.storedFile)]).then((values) => {
-                checkboxCoords.value = values[0].checkbox;
-                inputFieldCoords.value = values[0].inputLine;
-                charBoxCoords.value = values[0].charBox.reverse();
-                resolution = values[0].resolution;
-                imageStore.addProcessedImage(values[1]);
-            }).catch((e) => {
-                error.value = e.message;
-                beingScanned.value = false;
-            });
+            await Promise.all([postImage(imageStore.storedFile), postImageForCropping(imageStore.storedFile)])
+                .then((values) => {
+                    checkboxCoords.value = values[0].checkbox;
+                    inputFieldCoords.value = values[0].inputLine;
+                    charBoxCoords.value = values[0].charBox.reverse();
+                    resolution = values[0].resolution;
+                    imageStore.addProcessedImage(values[1]);
+                }).catch((e) => {
+                    error.value = e.message;
+                    beingScanned.value = false;
+                });
             beingScanned.value = false;
             showModal.value = true;
         }
 
         function download() {
+            for (const ref of inputRefs.value) {
+                const input = ref as HTMLInputElement;
+                input.style.color = 'black';
+                input.style.top = '-12px';
+            }
             const doc = new jsPDF({
                 unit: 'px'
             });
@@ -99,6 +103,12 @@
             imageStore.removeImage();
             fileName.value = '';
             error.value = '';
+        }
+
+        function mapToRatio(elementCoords: number[][], offset: number = 0) {
+            return elementCoords.map((coords) => {
+                return coords.map((coords) => (coords * (domToActualRatio.value ?? 0) - offset));
+            });
         }
 
         function imageLoaded(event: Event) {
@@ -151,26 +161,36 @@
             </template>
             <div class="relative"
                  ref="form">
+                <!-- <CustomCheckbox v-for="(coords, index) in checkboxCoords"
+                                :key="index"
+                                :style="`left: ${coords[0]}px; top: ${coords[1]}px;`" /> -->
                 <input v-for="(coords, index) in checkboxCoords"
                        :key="index"
                        type="checkbox"
-                       class="absolute opacity-0 checked:opacity-100"
+                       class="absolute"
                        ref="checkboxRefs"
                        :style="`left: ${coords[0]}px; top: ${coords[1]}px;`" />
                 <input v-for="(coords, index) in inputFieldCoords"
                        :key="index"
-                       class="absolute bg-transparent shifted-text text-black font-serif h-5"
+                       class="absolute bg-transparent"
                        ref="inputRefs"
                        :style="`left: ${coords[0]}px;
                                      top: calc(${coords[1]}px - 12px);
                                      width: ${coords[2] - coords[0]}px;
-                                     `" />
+                                     height: 12px;
+                                     color: black;`" />
                 <CharBox v-for="(coords, index) in charBoxCoords"
                          :key="index"
-                         class="h-5"
                          :style="`left: calc(${coords[0]}px + 3px);
                                   top: calc(${coords[1]}px + 2px);
-                                  width: ${coords[2] - coords[0]}px;`" />
+                                  width: ${coords[2] - coords[0]}px;
+                                  height: ${coords[3] - coords[1]}px`" />
+                <!-- <InputField v-for="(coords, index) in inputFieldCoords"
+                            :key="index"
+                            :style="`left: ${coords[0]}px;
+                                     top: calc(${coords[1]}px - 12px);
+                                     width: ${coords[2] - coords[0]}px;
+                                     height: 12`" /> -->
                 <div class="max-h-[90svh]">
                     <img v-if="imageStore.processedImage"
                          class="rounded-sm object-contain max-h-[90svh] w-full"

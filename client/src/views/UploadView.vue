@@ -24,6 +24,10 @@
         const charBoxCoords = ref<number[][]>();
         const domToActualRatio = ref<number>();
         const form = ref<HTMLElement>();
+        const checkboxRefs = ref([]);
+        const inputRefs = ref([]);
+        const charBoxRefs = ref([]);
+
 
         async function handleUpload($event: Event) {
             let file: File;
@@ -47,43 +51,45 @@
             });
         }
 
-        function mapToRatio(elementCoords: number[][], offset: number = 0) {
-            return elementCoords.map((coords) => {
-                return coords.map((coords) => (coords * (domToActualRatio.value ?? 0) - offset));
-            });
-        }
-
         async function scanForm() {
             showModal.value = false;
             beingScanned.value = true;
-            await Promise.all([postImage(imageStore.storedFile), postImageForCropping(imageStore.storedFile)]).then((values) => {
-                checkboxCoords.value = values[0].checkbox;
-                inputFieldCoords.value = values[0].inputLine;
-                charBoxCoords.value = values[0].charBox.reverse();
-                resolution = values[0].resolution;
-                imageStore.addProcessedImage(values[1]);
-            }).catch((e) => {
-                error.value = e.message;
-                beingScanned.value = false;
-            });
+            await Promise.all([postImage(imageStore.storedFile), postImageForCropping(imageStore.storedFile)])
+                .then((values) => {
+                    checkboxCoords.value = values[0].checkbox;
+                    inputFieldCoords.value = values[0].inputLine;
+                    charBoxCoords.value = values[0].charBox.reverse();
+                    resolution = values[0].resolution;
+                    imageStore.addProcessedImage(values[1]);
+                }).catch((e) => {
+                    error.value = e.message;
+                    beingScanned.value = false;
+                });
             beingScanned.value = false;
             showModal.value = true;
         }
 
         function download() {
-            const doc = new jsPDF();
-            if (!form.value) return;
+            for (const ref of inputRefs.value) {
+                const input = ref as HTMLInputElement;
+                input.style.color = 'black';
+                input.style.top = '-12px';
+            }
+            const doc = new jsPDF({
+                unit: 'px'
+            });
+            if (!form.value || !domToActualRatio.value) return;
+            const scale = 1 - domToActualRatio.value;
             doc.html(form.value, {
                 html2canvas: {
-                    scale: domToActualRatio.value,
-                    logging: true,
+                    scale: scale,
                     scrollX: 0,
                     scrollY: 0,
                     windowWidth: resolution[0],
                     windowHeight: resolution[1],
                 },
                 callback: function (doc) {
-                    doc.save();
+                    doc.save('form.pdf');
                 }
             });
         }
@@ -92,6 +98,12 @@
             imageStore.removeImage();
             fileName.value = '';
             error.value = '';
+        }
+
+        function mapToRatio(elementCoords: number[][], offset: number = 0) {
+            return elementCoords.map((coords) => {
+                return coords.map((coords) => (coords * (domToActualRatio.value ?? 0) - offset));
+            });
         }
 
         function imageLoaded(event: Event) {
@@ -106,7 +118,7 @@
 </script>
 
 <template>
-    <main class="flex flex-col items-center relative h-5/6">
+    <main class="flex flex-col items-center relative h-5/6 w-fit m-auto">
         <DragAndDrop v-if="!imageStore.uploadedImage"
                      @drop.stop.prevent="handleUpload"
                      @change="handleUpload" />
@@ -114,14 +126,15 @@
                        :being-scanned="beingScanned"
                        @scanform="scanForm"
                        @change.stop="handleUpload" />
-
         <div class="relative">
             <div v-if="beingScanned"
-                 class="absolute flex items-center inset-0 bg-zinc-600/50 rounded-lg backdrop-blur-[1px]">
+                 class="absolute flex items-center inset-0 
+                 bg-zinc-600/50 rounded-lg backdrop-blur-[1px]">
                 <UploadLoader />
             </div>
             <div v-if="error && !beingScanned"
-                 class="absolute flex flex-col justify-center items-center inset-0 bg-zinc-600/50 rounded-lg backdrop-blur-[1px]">
+                 class="absolute flex flex-col justify-center items-center inset-0 
+                 bg-zinc-600/50 rounded-lg backdrop-blur-[1px]">
                 <i class="bi bi-exclamation-triangle text-3xl"></i>
                 <p>Error: {{ error }}</p>
             </div>
@@ -143,15 +156,36 @@
             </template>
             <div class="relative"
                  ref="form">
-                <CustomCheckbox v-for="(coords, index) in checkboxCoords"
+                <!-- <CustomCheckbox v-for="(coords, index) in checkboxCoords"
                                 :key="index"
-                                :style="`left: ${coords[0]}px; top: ${coords[1]}px;`" />
+                                :style="`left: ${coords[0]}px; top: ${coords[1]}px;`" /> -->
+                <input v-for="(coords, index) in checkboxCoords"
+                       :key="index"
+                       type="checkbox"
+                       class="absolute"
+                       ref="checkboxRefs"
+                       :style="`left: ${coords[0]}px; top: ${coords[1]}px;`" />
+                <input v-for="(coords, index) in inputFieldCoords"
+                       :key="index"
+                       class="absolute bg-transparent"
+                       ref="inputRefs"
+                       :style="`left: ${coords[0]}px;
+                                     top: calc(${coords[1]}px - 12px);
+                                     width: ${coords[2] - coords[0]}px;
+                                     height: 12px;
+                                     color: black;`" />
                 <CharBox v-for="(coords, index) in charBoxCoords"
                          :key="index"
-                         :style="`left: calc(${coords[0]}px + 3px); top: calc(${coords[1]}px + 2px); width: ${coords[2] - coords[0]}px; height: ${coords[3] - coords[1]}px`" />
-                <InputField v-for="(coords, index) in inputFieldCoords"
+                         :style="`left: calc(${coords[0]}px + 3px);
+                                  top: calc(${coords[1]}px + 2px);
+                                  width: ${coords[2] - coords[0]}px;
+                                  height: ${coords[3] - coords[1]}px`" />
+                <!-- <InputField v-for="(coords, index) in inputFieldCoords"
                             :key="index"
-                            :style="`left: ${coords[0]}px; top: calc(${coords[1]}px - 12px); width: ${coords[2] - coords[0]}px; height: 10px`" />
+                            :style="`left: ${coords[0]}px;
+                                     top: calc(${coords[1]}px - 12px);
+                                     width: ${coords[2] - coords[0]}px;
+                                     height: 12`" /> -->
                 <div class="max-h-[90svh]">
                     <img v-if="imageStore.processedImage"
                          class="rounded-sm object-contain max-h-[90svh] w-full"
@@ -161,7 +195,8 @@
             </div>
             <template #footer>
                 <button @click="download"
-                        class="transition-colors bg-green-600 hover:bg-green-900 rounded-md mx-auto mt-2 size-10">
+                        class="transition-colors bg-green-600 hover:bg-green-900 
+                        rounded-md mx-auto mt-2 size-10">
                     <i class="bi bi-download text-2xl"></i>
                 </button>
             </template>

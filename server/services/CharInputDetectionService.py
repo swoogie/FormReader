@@ -7,8 +7,7 @@ class CharInputDetectionService:
         self._preprocessor = preprocessor
 
     def detect(self, image):
-        edges = self._preprocessor.canny(image, 5, 15)
-
+        edges = self._preprocessor.canny(image, 10, 15)
         contours, hierarchy = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         rectangles = []
 

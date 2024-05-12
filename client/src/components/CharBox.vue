@@ -22,8 +22,7 @@
 <template>
     <input type="text"
            maxlength="1"
-           class="absolute bg-transparent text-black text-base"
+           class="absolute bg-transparent text-black font-serif shifted-text"
            @input="nextSibling"
-           @keydown="checkWhichKeyDown"
-           style="font-family: Arial">
+           @keydown="checkWhichKeyDown">
 </template>

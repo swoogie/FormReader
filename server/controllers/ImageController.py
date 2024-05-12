@@ -1,6 +1,6 @@
-from dependency_injector.wiring import inject, Provide
+from dependency_injector.wiring import Provide
 import logging
-from flask import request, flash, redirect, jsonify, current_app, send_file
+from flask import request, flash, redirect, jsonify, send_file
 from services import ImageReadingService, \
                      PreprocessingService, \
                      CheckboxDetectionService, \
@@ -28,7 +28,6 @@ class ImageController:
         if self._post_valid():
             return send_file(self.crop_deskew(), mimetype='image/jpeg')
 
-    @inject
     def process_image(
         self,
         image_reader: ImageReadingService = Provide[Container.image_reader],
@@ -37,16 +36,17 @@ class ImageController:
         line_detector: LineDetectionService = Provide[Container.line_detector],
         word_detector: WordDetectionService = Provide[Container.word_detector],
         char_input_detector: CharInputDetectionService = Provide[Container.char_input_detector]
-    ):
+        ):
         image = image_reader.read_image(request.files['file'])
         cropped = preprocessor.find_and_crop_paper(image)
-        sharpened = preprocessor.sharpen(cropped)
-        resized, _, width, height = preprocessor.resize(sharpened, self.MAX_IMAGE_SIZE)
+        resized, _, width, height = preprocessor.resize(cropped, self.MAX_IMAGE_SIZE)
         red_zones = word_detector.detect(resized)
 
         checkbox_coordinates = checkbox_detector.detect(resized)
         line_coordinates = self._filter_overlaps(line_detector.detect(resized), red_zones)
+        line_coordinates = self._filter_overlaps(line_coordinates, checkbox_coordinates)
         char_input_coordinates = self._filter_overlaps(char_input_detector.detect(resized), red_zones)
+        # char_input_coordinates = self._filter_overlaps(char_input_coordinates, checkbox_coordinates)
 
         return self._get_destructured_array(checkbox_coordinates), \
             self._get_destructured_array(line_coordinates), \
@@ -82,13 +82,6 @@ class ImageController:
             filename.rsplit('.', 1)[1].lower(
             ) in ImageController.ALLOWED_EXTENSIONS
 
-    def _get_original_coords(self, ratio, all_coords):
-        response_coords = []
-        for coords in all_coords:
-            x1, y1, x2, y2 = map(lambda coord: int(coord / ratio), coords)
-            response_coords.append([x1, y1, x2, y2])
-        return response_coords
-
     def _get_destructured_array(self, element):
         response = []
         for coords in element:
@@ -114,7 +107,7 @@ class ImageController:
         box_x, box_y, box_w, box_h = box
 
         if (box_x <= line_x1 <= box_x + box_w and box_y <= line_y1 <= box_y + box_h) or \
-        (box_x <= line_x2 <= box_x + box_w and box_y <= line_y2 <= box_y + box_h):
+           (box_x <= line_x2 <= box_x + box_w and box_y <= line_y2 <= box_y + box_h):
             return True
 
         return False

@@ -3,12 +3,10 @@
         import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
         import { ref, watch } from 'vue';
         import HelloWorld from './components/HelloWorld.vue'
-        import { useImageStore } from './stores/imageStore';
 
 
-        const imageStore = useImageStore();
         const pageTitle = ref("Form Reader");
-        const msg = ref("Welcome! Login to see your forms");
+        const msg = ref("Welcome!");
 
         function getPathTitle(path: string) {
             let title: string = path.substring(1);
@@ -37,13 +35,11 @@
 </script>
 
 <template>
-    <header class="transition-all flex justify-center mx-auto max-w-md leading-6 border-b border-gray-500/50 p-2 mb-7 overflow-hidden"
-            :style="{'max-height': imageStore.uploadedImage ? '3rem' : '8rem'}"
-    >
+    <header class="transition-all flex justify-center mx-auto max-w-md w-[90svw] leading-6 border-b border-gray-500/50 p-2 mb-5 sm:mb-7 overflow-hidden">
         <div>
             <HelloWorld :pageTitle="pageTitle"
                         :msg="msg" />
-            <nav class="w-full font-medium text-center mt-7">
+            <nav class="w-full font-medium text-center mt-3 sm:mt-7">
                 <RouterLink class="px-2 duration-75 transition-colors hover:bg-green-400 hover:bg-opacity-50"
                             to="/">Home</RouterLink>
                 <RouterLink class="px-2 duration-75 border-l border-gray-500/50 transition-colors hover:bg-green-400 hover:bg-opacity-50"

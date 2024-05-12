@@ -1,10 +1,4 @@
-from dependency_injector.wiring import inject, Provide
-import logging
-import os
-from flask import request, flash, redirect, url_for, jsonify, make_response, render_template
-from werkzeug.utils import secure_filename
-from services import PreprocessingService
-from container import Container
+from flask import request, make_response
 from controllers import ImageController
 
 

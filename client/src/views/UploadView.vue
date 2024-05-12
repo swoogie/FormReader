@@ -22,9 +22,6 @@
         const charBoxCoords = ref<number[][]>();
         const domToActualRatio = ref<number>();
         const form = ref<HTMLElement>();
-        const checkboxRefs = ref([]);
-        const inputRefs = ref([]);
-        const charBoxRefs = ref([]);
 
 
 
@@ -69,11 +66,6 @@
         }
 
         function download() {
-            for (const ref of inputRefs.value) {
-                const input = ref as HTMLInputElement;
-                input.style.color = 'black';
-                input.style.top = '-12px';
-            }
             const doc = new jsPDF({
                 unit: 'px'
             });
@@ -161,36 +153,26 @@
             </template>
             <div class="relative"
                  ref="form">
-                <!-- <CustomCheckbox v-for="(coords, index) in checkboxCoords"
-                                :key="index"
-                                :style="`left: ${coords[0]}px; top: ${coords[1]}px;`" /> -->
                 <input v-for="(coords, index) in checkboxCoords"
                        :key="index"
                        type="checkbox"
-                       class="absolute"
+                       class="absolute opacity-0 checked:opacity-100"
                        ref="checkboxRefs"
                        :style="`left: ${coords[0]}px; top: ${coords[1]}px;`" />
                 <input v-for="(coords, index) in inputFieldCoords"
                        :key="index"
-                       class="absolute bg-transparent"
+                       class="absolute bg-transparent shifted-text text-black font-serif h-5"
                        ref="inputRefs"
                        :style="`left: ${coords[0]}px;
                                      top: calc(${coords[1]}px - 12px);
                                      width: ${coords[2] - coords[0]}px;
-                                     height: 12px;
-                                     color: black;`" />
+                                     `" />
                 <CharBox v-for="(coords, index) in charBoxCoords"
                          :key="index"
+                         class="h-5"
                          :style="`left: calc(${coords[0]}px + 3px);
                                   top: calc(${coords[1]}px + 2px);
-                                  width: ${coords[2] - coords[0]}px;
-                                  height: ${coords[3] - coords[1]}px`" />
-                <!-- <InputField v-for="(coords, index) in inputFieldCoords"
-                            :key="index"
-                            :style="`left: ${coords[0]}px;
-                                     top: calc(${coords[1]}px - 12px);
-                                     width: ${coords[2] - coords[0]}px;
-                                     height: 12`" /> -->
+                                  width: ${coords[2] - coords[0]}px;`" />
                 <div class="max-h-[90svh]">
                     <img v-if="imageStore.processedImage"
                          class="rounded-sm object-contain max-h-[90svh] w-full"

@@ -10,7 +10,6 @@ class WordDetectionService:
 
     def detect(self, image):
         edges = self.preprocessor.canny(image, 50, 100)
-        # dilated = self.preprocessor.dilate(edges, 2)
 
         data = pytesseract.image_to_data(edges, output_type=pytesseract.Output.DICT, config=self.CONFIG)
 
@@ -21,6 +20,8 @@ class WordDetectionService:
             if 500 >= w * h:
                 continue
             if 1.1 >= aspect_ratio:
+                continue
+            if 10 > h: 
                 continue
             filtered_boxes.append((x, y, w, h))
         return filtered_boxes

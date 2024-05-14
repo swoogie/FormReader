@@ -11,9 +11,13 @@ class PreprocessingService:
         edges = cv2.Canny(blurred, bottom_threshold, top_threshold)
         return edges
 
-    def dilate(self, image, kernel_matrix = 2):
+    def dilate(self, image, iterations = 1, kernel_matrix = 2):
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_matrix, kernel_matrix))
-        return cv2.dilate(image, kernel, iterations=1)
+        return cv2.dilate(image, kernel, iterations=iterations)
+
+    def erode(self, image, iterations = 1, kernel_matrix = 2):
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_matrix, kernel_matrix))
+        return cv2.erode(image, kernel, iterations=iterations)
 
     def find_and_crop_paper(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

@@ -10,7 +10,8 @@ A webapp that detects input fields from a scanned paper form
 
 1. [Python 3.11.8](https://www.python.org/downloads/release/python-3118/)
 2. [Tesseract](https://tesseract-ocr.github.io/)
-3. (Optional) Podman or Docker
+3. [Node 20](https://nodejs.org/en)
+4. (Optional) Podman or Docker
 
 ## Project Setup for Local Development
 

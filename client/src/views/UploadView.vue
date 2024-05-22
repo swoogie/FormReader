@@ -24,6 +24,7 @@
         const form = ref<HTMLElement>();
 
 
+
         async function handleUpload($event: Event) {
             let file: File;
             if ($event instanceof DragEvent && $event.dataTransfer?.files[0]) {
